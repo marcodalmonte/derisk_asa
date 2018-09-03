@@ -1,0 +1,36 @@
+.form-group {
+    clear: left;
+}
+
+.imgdiv {
+    clear: left;
+    float: left;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.imgleft {
+    clear: left;
+    float: left;
+    margin-right: 180px;
+    width: 200px;
+}
+
+.imgleft .btn {
+    margin-top: 10px;
+}
+
+.imgright {
+    border: 1px solid #000000;
+    float: left;
+    height: 200px;
+    width: 200px;
+}
+
+.Editor-editor ul {
+    list-style-type: disc;
+}
+
+.dialog-confirm {
+    display: none;
+}

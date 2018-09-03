@@ -1,0 +1,513 @@
+.top-bar {
+    border-top: 5px solid #CA322D;
+}
+
+.navbar-default .navbar-nav > .active > a {
+    background: linear-gradient(to bottom, #CA322D 0%, #CA322D 30%, #CA322D 100%);
+}
+
+.pagination > .active > a, 
+.pagination > .active > span, 
+.pagination > .active > a:hover, 
+.pagination > .active > span:hover, 
+.pagination > .active > a:focus, 
+.pagination > .active > span:focus {
+    background-color: #CA322D;
+    border-color: #CA322D;
+}
+
+.pagination > li > a, 
+.pagination > li > span {
+    background-color: #F9E5E8;
+    border: 1px solid #CA322D;
+    color: #CA322D;
+}
+
+.pagination > li > a:hover, 
+.pagination > li > span:hover, 
+.pagination > li > a:focus, 
+.pagination > li > span:focus {
+    background-color: #CA322D;
+    border-color: #CA322D;
+    color: #FFFFFF;
+}
+
+.navbar-default .navbar-nav > .active > a:focus, 
+.navbar-default .navbar-nav > .active > a:hover {
+    background-color: #CA322D;
+}
+
+ul#header-actions li.list-box.user-admin .dropdown-menu {
+    min-height: 35px;
+}
+
+.logo img {
+    max-width: 170px;
+    margin: 0;
+    filter: none;
+}
+
+.pull-right {
+    margin-top: 14px;
+}
+
+.table > thead > tr > th, 
+.table > thead > tr > td {
+    font-weight: bold;
+}
+
+.new_entity {
+    float: right;
+}
+
+.fancy {
+    min-height: 0;
+}
+
+.actions {
+    display: block;
+    float: left;
+    height: 24px;
+    margin-right: 20px;
+    width: 24px;
+}
+
+.img_actions {
+    float: left;
+    height: 24px;
+    margin-right: 20px;
+    width: 24px;
+}
+
+.row_phones,
+.row_emails {
+    padding-left: 7px;
+}
+
+.row_emails {
+    margin-bottom: 20px;
+}
+
+.phone_line {
+    margin-bottom: 10px;
+}
+
+#phones_set {
+    clear: left;
+    float: left;
+    margin-top: 10px;
+}
+
+#emails_set {
+    clear: left;
+    float: left;
+    margin-top: 10px;
+}
+
+.phones,
+.emails {    
+    float: left;
+    margin-right: 10px;
+    width: 260px;
+}
+
+.phones_add,
+.phones_del,
+.emails_add,
+.emails_del {
+    margin-top: 3px;
+}
+
+#save-client {
+    clear: left;
+    float: left;
+    margin-top: 10px;
+}
+
+#surveydate,
+input.othersdates {
+    clear: left;
+    float: left;
+    width: 150px;
+}
+
+.ui-datepicker-trigger {
+    cursor: pointer;
+    float: left;
+    height: 32px;
+    width: 32px;
+}
+
+#client_id,
+#surveytype_id,
+#reinspectionof,
+#lab_id,
+#issued_to,
+#urgency {
+    width: 50%;
+}
+
+#inspectionTable th {
+    font-size: 13px;
+}
+
+#import-csv {
+    float: left;
+    margin-top: 15px;
+}
+
+#confirmation-message {
+    display: none;
+    padding-bottom: 0;
+}
+
+#confirmation-message .panel-light {
+    margin-bottom: 0;
+}
+
+#message {
+    color: #4db667;
+}
+
+.hide {
+    display: none;
+}
+
+.picture_container {
+    clear: left;
+    float: left;
+    width: 100px;
+}
+
+.picture_container img {
+    margin-bottom: 10px;
+    width: 100px;
+}
+
+.w24 {
+    height: 24px;
+    width: 24px;
+}
+
+#inspectionTable thead tr th {
+    vertical-align: middle;
+}
+
+td .form-control {
+    clear: left;
+    float: left;
+    margin-bottom: 5px;
+}
+
+td .form-control.floors {
+    width: 200px;
+}
+
+td .form-control.treatments {
+    width: 240px;
+}
+
+td .form-control.accesses {
+    width: 60px;
+}
+
+td textarea.form-control {
+    height: 90px;
+    width: 250px;
+}
+
+div.fancy {
+    width: 100%;
+}
+
+.DTFC_LeftHeadWrapper .DTFC_Cloned {
+    margin-bottom: 0 !important;
+    margin-top: 6px !important;
+}
+
+.DTFC_LeftBodyLiner .DTFC_Cloned {
+    margin-bottom: 0 !important;
+    margin-top: -2px !important;
+}
+
+.DTFC_LeftHeadWrapper .table-striped > thead > tr > th,
+.DTFC_LeftBodyLiner .table-striped > tbody > tr > th,
+.DTFC_LeftBodyLiner .table-striped > tbody > tr > td {
+    background: #FFFACD;
+}
+
+fieldset {
+    border: 1px solid #CA322D;
+    border-radius: 3px;
+    clear: left;
+    float: left;
+    margin-bottom: 50px;
+    padding: 10px;
+    width: 400px;
+}
+
+fieldset legend {
+    border: none;
+    color: #CA322D; 
+    display: inline;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+    padding-left: 5px;
+    padding-right: 5px;
+    width: auto;
+}
+
+a.dashboard-link {
+    float: left;
+    font-size: 14px;
+    margin-bottom: 0px;
+    margin-right: 10px;
+}
+
+#add-removal input[type="text"] {
+    height: 34px;
+    padding: 6px 10px;
+    width: 50%;
+}
+
+#add-removal .form-group {
+    clear: left;
+}
+
+#add-removal #surveys,
+#preparation_date,
+#approval_date {
+    width: 15% !important;
+}
+
+#address,
+#preliminaries,
+#general_requirements,
+#tender_submission {
+    width: 75% !important;
+}
+
+#preparation_date,
+#approval_date {
+    float: left !important;
+}
+
+#preparation_date_parent, 
+#approval_parent {
+    float: left;
+    margin-top: 15px;
+    width: 100%;
+}
+
+#approval_parent {
+    margin-bottom: 30px;
+}
+
+#prepparent,
+#approvedparent,
+#siteparent,
+#mapparent,
+#floorparent,
+#accessparent,
+#bulkparent {
+    margin-top: 15px;
+}
+
+.file-loaded {
+    color: #71C586;
+}
+
+.file-not-loaded {
+    color: #A94442;
+}
+
+.file-loaded,
+.file-not-loaded {
+    clear: left;    
+    float: left;
+    font-weight: bold;
+    margin-left: 63px;
+    margin-top: 80px;
+}
+
+select#surveys {
+    height: 60px;
+}
+
+#preliminaries,
+#general_requirements,
+#tender_submission {
+    height: 295px;
+}
+
+#othersdates_set {
+    margin-bottom: 10px;
+    margin-left: 8px;
+}
+
+.otherdate_add,
+.othersdates_del {
+    margin-top: 3px;
+}
+
+.otherdate_line {
+    margin-bottom: 10px;
+}
+
+.areas_title {
+    float: left;
+    margin-right: 20px;
+}
+
+.saving_message {
+    color: #71C586;
+    display: none;
+    font-weight: bold;
+    margin-left: 20px;
+}
+
+.saving_message_text {
+    color: #71C586;
+    display: none;
+    float: left;
+    font-weight: bold;
+    margin-left: 20px;
+    margin-top: 18px;
+}
+
+.save-area-text {
+    float: left;
+    margin-bottom: 20px;
+    margin-top: 10px;
+}
+
+.saving_inspection_message {
+    clear: left;
+    color: #71C586;
+    display: none;
+    float: left;
+    font-weight: bold;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.textarea_text {
+    height: 200px;
+}
+
+.areas_inspections_table tbody th {
+    text-align: center;
+}
+
+#add-removal .areas_inspections_table input[type="text"] {
+    width: 180px;
+}
+
+#add-removal .areas_inspections_table .input_extent {
+    width: 100px !important;
+}
+
+.areas_inspno {
+    padding-top: 15px !important;
+    text-align: center;
+}
+
+.areas_inspections_table td {
+    text-align: center;
+}
+
+.nav-tabs li.active a {
+    background-color: #CA322D !important;
+    color: #FFFFFF !important;
+}
+
+#date_completed,
+#date_authorised,
+#date_issued,
+#date_checked {
+    float: left;
+    width: 150px;
+}
+
+.row_authors,
+.row_surveyors,
+.row_issue_tos {
+    padding-left: 7px;
+}
+
+.row_authors,
+.row_surveyors {
+    margin-bottom: 20px;
+}
+
+.author_line,
+.surveyor_line {
+    margin-bottom: 10px;
+}
+
+#authors_set,
+#surveyors_set,
+#issuedtos_set {
+    clear: left;
+    float: left;
+    margin-top: 10px;
+}
+
+.authors,
+.surveyors,
+.issuedtos {    
+    float: left;
+    margin-right: 10px;
+    width: 260px;
+}
+
+.authors_add,
+.authors_del,
+.surveyors_add,
+.surveyors_del,
+.issuedtos_add,
+.issuedtos_del {
+    margin-top: 3px;
+}
+
+#date_completed_div,
+#date_authorised_div,
+#date_checked_div,
+#date_issued_div {
+    clear: left;
+}
+
+.row_issue_tos {
+    margin-top: 20px;
+}
+
+#quality_check {
+    width: 50%;
+}
+
+#tabfloors .ui-widget-header {
+    background: none;
+    border: none;
+}
+
+#tabfloors .ui-state-active {
+    border: 1px solid #d3d3d3;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.thin {
+    width: 75px !important;
+}
+
+.large {
+    width: 200px;
+}
+
+@media (min-width: 768px) {
+    .dashboard-wrapper {
+        margin: 25px 30px 20px 10px;
+    }
+}

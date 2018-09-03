@@ -1,0 +1,269 @@
+#import-signature,
+#import-review-signature,
+#import-mainpicture {
+    margin-top: 10px;
+}
+
+#new_revision {
+    margin-top: 0;
+}
+
+#mpparent {
+    margin-top: 15px;
+}
+
+#next_date_recommended_div,
+#survey_date_div,
+#review_date_div {
+    clear: left;
+}
+
+#next_date_recommended,
+#survey_date,
+#review_date {
+    float: left;
+}
+
+#next_date_recommended_parent,
+#executive_summary_parent,
+#review_by_parent {
+    float: left;
+    margin-top: 15px;
+    width: 100%;
+}
+
+#create_new_fra_report {
+    clear: left;
+    color: #CA322D;
+    float: left;
+    font-weight: bold;
+}
+
+.picture-upload {
+    margin-bottom: 5px;
+}
+
+textarea::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+    color: #D9D9D9;
+}
+
+textarea:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+   color: #D9D9D9;
+   opacity: 1;
+}
+
+textarea::-moz-placeholder { /* Mozilla Firefox 19+ */
+   color: #D9D9D9;
+   opacity: 1;
+}
+
+textarea:-ms-input-placeholder { /* Internet Explorer 10-11 */
+   color: #D9D9D9;
+}
+
+textarea::-ms-input-placeholder { /* Microsoft Edge */
+   color: #D9D9D9;
+}
+
+.textarea-comments {
+    margin-bottom: 10px;
+}
+
+.select-priority {
+    clear: left;
+    float: left;
+    margin-bottom: 10px;
+    width: 50px;
+}
+
+.div-priority {
+    border: 1px solid #D9D9D9;
+    clear: left;
+    float: left;
+    height: 50px;
+    margin-bottom: 10px;
+    width: 50px;
+}
+
+.tab-icon {
+    height: 24px;
+    width: 24px;
+}
+
+.nav-tabs {
+    margin-left: 17px;
+    width: 98%;
+}
+
+.tab-content {
+    clear: left;
+    float: left;
+    margin-bottom: 20px;
+    margin-left: 17px;
+    width: 98%;
+}
+
+#country_context,
+#risk_level_rate,
+#survey_date,
+#next_date_recommended,
+#review_date {
+    width: 15%;
+}
+
+#responsible_person,
+#assessor,
+#person_to_meet,
+#use_of_building,
+#number_of_floors,
+#number_employees,
+#construction_type,
+#max_number_occupants,
+#disabled_occupants,
+#remote_occupants,
+#hazard_from_fire,
+#life_safety,
+#general_fire_risk,
+#review_by {
+    width: 50%;
+}
+
+#hours_operation,
+#executive_summary,
+#relevant_fire_safety_legislation {
+    height: 155px;
+    width: 75%;
+}
+
+#fire_loss_experience {
+    width: 50%;
+}
+
+#signparent,
+#mpparent,
+#review-signparent {
+    margin-bottom: 30px;
+    margin-top: 30px;
+}
+
+.ready_comments,
+.ready_recommendations {
+    width: 100% !important;
+}
+
+.imgques {
+    margin-bottom: 15px;
+    margin-right: 0px;
+    width: 250px;
+}
+
+.btn-ques {
+    float: left;
+    margin-right: 10px;
+}
+
+.a-link-revision {
+    clear: left;
+    float: left;
+    margin-bottom: 10px;
+    margin-right: 10px;
+}
+
+.delete-revision {
+    float: left;
+}
+
+.delete-revision img {
+    height: 20px;
+    width: 20px;
+}
+
+#caption-others-0 {
+    width: 400px;
+}
+
+#ndr_choice_time {
+    clear: left;
+    float: left;
+    margin-top: 15px;
+}
+
+#ndr_choice_label_start {
+    float: left;
+    margin-top: 5px;
+}
+
+#revision_time {
+    float: left;
+    margin-left: 10px;
+    width: 50px;
+}
+
+#ndr_choice_label_end {
+    float: left;
+    margin-left: 10px;
+    margin-top: 5px;
+}
+
+#settings-link {
+    float: right;
+}
+
+#dialog-confirm .ui-icon-alert {
+    float: left;
+    margin-right: 5px;
+    margin-top: 2px;
+}
+
+.ui-dialog .ui-widget-header {
+    background: #CA322D;
+    color: #FFFFFF;
+}
+
+input.plans {
+    width: 250px; 
+}
+
+input.completion {
+    width: 150px;
+}
+
+.wrong-answer {
+    color: #CA322D;
+    font-weight: bold;
+}
+
+@media (max-width: 1300px) {
+    #responsible_person,
+    #assessor,
+    #person_to_meet,
+    #use_of_building,
+    #number_of_floors,
+    #number_employees,
+    #construction_type,
+    #max_number_occupants,
+    #disabled_occupants,
+    #remote_occupants,
+    #hazard_from_fire,
+    #life_safety,
+    #general_fire_risk,
+    #review_by {
+        width: 75%;
+    }
+
+    .imgques {
+        width: 200px;
+    }
+    
+    .btn-ques {
+        clear: left;
+    }
+
+    input.plans {
+        width: 150px;
+    }
+    
+    input.completion {
+        width: 110px;
+    }
+}
