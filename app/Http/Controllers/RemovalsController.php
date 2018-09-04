@@ -73,6 +73,7 @@ class RemovalsController extends Controller
             'access_routes'             =>  '',
             'bulk_analysis_certificate' =>  '',
             'general_requirements'      =>  '',
+            'tender_submission'         =>  '',
             'comments'                  =>  '',
             'print_date'                =>  '',
         );      
@@ -107,6 +108,7 @@ class RemovalsController extends Controller
                 'access_routes'             =>  $fremoval->access_routes_path,
                 'bulk_analysis_certificate' =>  $fremoval->bulk_analysis_certificate_path,
                 'general_requirements'      =>  $fremoval->general_requirements,
+                'tender_submission'         =>  $fremoval->tender_submission,
                 'comments'                  =>  $fremoval->comments,
                 'print_date'                =>  $print_date,
             );
@@ -186,6 +188,9 @@ class RemovalsController extends Controller
         $general_requirements = $request->input('general_requirements');
         $general_requirements = str_replace("<div>","",$general_requirements);
         $general_requirements = str_replace("</div>","",$general_requirements);
+        $tender_submission = $request->input('tender_submission');
+        $tender_submission = str_replace("<div>","",$tender_submission);
+        $tender_submission = str_replace("</div>","",$tender_submission);
         $revision_comments = $request->input('revision_comments');
         $new_revision = $request->input('new_revision');
         
@@ -197,9 +202,11 @@ class RemovalsController extends Controller
         
         $preparation_date = date('Y-m-d H:i:s',strtotime($parts[2] . '-' . $parts[1] . '-' . $parts[0]));
         
-        $parts = explode('/',$approval_date);
-        
-        $approval_date = date('Y-m-d H:i:s',strtotime($parts[2] . '-' . $parts[1] . '-' . $parts[0]));
+        if (!empty($approval_date)) {
+            $parts = explode('/',$approval_date);
+
+            $approval_date = date('Y-m-d H:i:s',strtotime($parts[2] . '-' . $parts[1] . '-' . $parts[0]));
+        }
         
         $new = false;
         
@@ -228,6 +235,7 @@ class RemovalsController extends Controller
                     'access_routes_path'                =>  str_replace('/removals/','/',$access_routes),
                     'bulk_analysis_certificate_path'    =>  str_replace('/removals/','/',$bulk_analysis_certificate),
                     'general_requirements'              =>  $general_requirements,
+                    'tender_submission'                 =>  $tender_submission,
                     'comments'                          =>  $revision_comments,
                     'created_at'                        =>  $creation_date,
                     'updated_at'                        =>  $modify_date,
@@ -383,6 +391,7 @@ class RemovalsController extends Controller
                     'access_routes_path'                =>  str_replace('/removals/','/',$access_routes),
                     'bulk_analysis_certificate_path'    =>  str_replace('/removals/','/',$bulk_analysis_certificate),
                     'general_requirements'              =>  $general_requirements,
+                    'tender_submission'                 =>  $tender_submission,
                     'comments'                          =>  $revision_comments,
                     'updated_at'                        =>  $modify_date,
                 ]);

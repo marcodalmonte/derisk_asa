@@ -1759,6 +1759,37 @@ class RemovalPDF extends \fpdi\FPDI
         $this->setPrintFooter(true);
     }
     
+    public function printAnalysisOfTenderSubmission()
+    {
+        $stds = $this->defineStandardFont();
+        
+        $elems = $this->getElements();
+        
+        $this->setPrintHeader(true);
+        
+        $this->AddPage();
+        $this->TOC_Entry('Analysis of Tender Submission', 0);
+        
+        $x = 12.50;        
+        $y = 25;
+        $cell_width = 185;
+        $cell_height = 7;
+        
+        $this->SetXY($x, $y); 
+        
+        $this->printRedBar('ANALYSIS OF TENDER SUBMISSION',$x,$y,$cell_width,$cell_height);
+        
+        $y += 3 + $cell_height;
+        
+        $this->SetXY($x, $y);
+        
+        $sentence = $elems['removal']->tender_submission;
+        
+        $this->printHtmlText($sentence);
+        
+        $this->setPrintFooter(true);
+    }
+    
     public function printNonCollusionAndNonCorruption()
     {
         $stds = $this->defineStandardFont();
@@ -1923,6 +1954,9 @@ class RemovalsPdfController extends Controller
         
         // General Requirements
         $pdf->printGeneralRequirements();
+        
+        // Analysis of Tender Submission
+        $pdf->printAnalysisOfTenderSubmission();
         
         // Non collusion and non-corruption
         $pdf->printNonCollusionAndNonCorruption();

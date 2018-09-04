@@ -33,6 +33,7 @@ class CreateRemovalsTable extends Migration
             $table->longText('access_routes_path');
             $table->longText('bulk_analysis_certificate_path');
             $table->longText('general_requirements');
+            $table->longText('tender_submission');
             $table->longText('path');
             $table->longText('comments');
             $table->timestamps();
