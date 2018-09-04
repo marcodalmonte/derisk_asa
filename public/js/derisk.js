@@ -1603,13 +1603,6 @@ jQuery(document).ready(function() {
                         message: 'Please, add the name of the person that approved the report'
                     }
                 }
-            },
-            tender_submission: {
-                validators: {
-                    notEmpty: {
-                        message: 'The tender submission is required'
-                    }
-                }
             }
         }
     });
