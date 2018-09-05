@@ -341,6 +341,11 @@ $tenderSubmission = str_replace('"',"'",$tenderSubmission);
 
                             </div>
                         </div>
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <label><input type="checkbox" id="include_access_routes" name="include_access_routes" value="1" <?php echo ((!empty($removal['include_access_routes']) and ('1' == $removal['include_access_routes'])) ? ' checked' : '') ?>/> Include Access Routes</label>
+                            </div>
+                        </div>                        
                         <div id="bulkparent" class="imgdiv">
                             <div id="bulkleft" class="imgleft">
                                 <input type="file" id="bulk-file" name="bulk-file" value="" />

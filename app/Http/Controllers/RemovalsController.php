@@ -76,6 +76,7 @@ class RemovalsController extends Controller
             'tender_submission'         =>  '',
             'comments'                  =>  '',
             'print_date'                =>  '',
+            'include_access_routes'     =>  '',
         );      
         
         if ('new' != $spec) {        
@@ -111,6 +112,7 @@ class RemovalsController extends Controller
                 'tender_submission'         =>  $fremoval->tender_submission,
                 'comments'                  =>  $fremoval->comments,
                 'print_date'                =>  $print_date,
+                'include_access_routes'     =>  $fremoval->include_access_routes,
             );
         }
         
@@ -191,6 +193,7 @@ class RemovalsController extends Controller
         $tender_submission = $request->input('tender_submission');
         $tender_submission = str_replace("<div>","",$tender_submission);
         $tender_submission = str_replace("</div>","",$tender_submission);
+        $include_access_routes = $request->get('include_access_routes');
         $revision_comments = $request->input('revision_comments');
         $new_revision = $request->input('new_revision');
         
@@ -236,6 +239,7 @@ class RemovalsController extends Controller
                     'bulk_analysis_certificate_path'    =>  str_replace('/removals/','/',$bulk_analysis_certificate),
                     'general_requirements'              =>  $general_requirements,
                     'tender_submission'                 =>  $tender_submission,
+                    'include_access_routes'             =>  $include_access_routes,
                     'comments'                          =>  $revision_comments,
                     'created_at'                        =>  $creation_date,
                     'updated_at'                        =>  $modify_date,
@@ -392,6 +396,7 @@ class RemovalsController extends Controller
                     'bulk_analysis_certificate_path'    =>  str_replace('/removals/','/',$bulk_analysis_certificate),
                     'general_requirements'              =>  $general_requirements,
                     'tender_submission'                 =>  $tender_submission,
+                    'include_access_routes'             =>  $include_access_routes,
                     'comments'                          =>  $revision_comments,
                     'updated_at'                        =>  $modify_date,
                 ]);

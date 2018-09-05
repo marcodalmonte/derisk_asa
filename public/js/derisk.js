@@ -969,6 +969,7 @@ function submitNewRemovalForm()
         var tender_submission = jQuery('#tender_submission').val();
         var new_revision = (jQuery('#new_revision').is(':checked') ? 'yes' : 'no');
         var revision_comments = jQuery('#revision_comments').val();
+        var include_access_routes = (jQuery('#include_access_routes').is(':checked') ? '1' : '0');
         
         var dataToPass = { };
 
@@ -992,6 +993,7 @@ function submitNewRemovalForm()
         dataToPass.bulk_analysis_certificate = bulk_analysis_certificate;
         dataToPass.general_requirements = general_requirements;
         dataToPass.tender_submission = tender_submission;
+        dataToPass.include_access_routes = include_access_routes;
         dataToPass.revision_comments = revision_comments;
         dataToPass.new_revision = new_revision;
 

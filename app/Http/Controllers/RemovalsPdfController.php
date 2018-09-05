@@ -241,7 +241,7 @@ class RemovalPDF extends \fpdi\FPDI
         $this->SetTextColor(0,0,0);
     }
     
-    private function printInspectionsTable($inspections,$y = 25)
+    private function printInspectionsTable($inspections,$item_no,$y = 25)
     {
         if (empty($inspections)) {
             return;
@@ -367,7 +367,48 @@ class RemovalPDF extends \fpdi\FPDI
             }
             
             $this->SetXY($x, $cury);
-        }        
+        }
+        
+        if ($cury >= 175) {
+            $this->AddPage($this->CurOrientation);
+            $cury = 25;
+        }
+        
+        if (25 != $cury) {
+            $cury += 5;
+            $this->SetXY($x, $cury);
+        }
+        
+        $this->Rect($x, $cury, 50, 8, 'FD');
+        $this->SetXY($x + 1, $cury + 1);
+        $this->SetFont($stds['font-family'],'B',$stds['font-table']);
+        $this->MultiCell(48, 6, 'TO COLLECTORS', 0, 'C', false);
+        
+        $this->Rect($x + 50, $cury, 50, 8, 'FD');
+        $this->SetXY($x + 51, $cury + 1);
+        $this->MultiCell(48, 6, 'TIME', 0, 'C', false);
+        
+        $this->Rect($x + 100, $cury, 50, 8, 'FD');
+        $this->SetXY($x + 101, $cury + 1);
+        $this->MultiCell(48, 6, 'COST / ' . chr(163), 0, 'C', false);
+        
+        $cury += 8;
+        
+        $this->SetXY($x, $cury);
+        
+        $this->SetFont($stds['font-family'],'',$stds['font-table']);
+        
+        $this->Rect($x, $cury, 50, 8, 'FD');
+        $this->SetXY($x + 1, $cury + 1);
+        $this->MultiCell(48, 6, 'Item ' . (($item_no < 10) ? ('0' . $item_no) : $item_no), 0, 'C', false);
+        
+        $this->Rect($x + 50, $cury, 50, 8, 'FD');
+        
+        $this->Rect($x + 100, $cury, 50, 8, 'FD');
+        
+        $cury += 8;
+
+        $this->SetXY($x, $cury);
     }
     
     private function cleanText($text)
@@ -376,16 +417,39 @@ class RemovalPDF extends \fpdi\FPDI
             return array();
         }
         
-        $cleanText = str_replace("<br/>","<br>",$text);
-        $cleanText = str_replace("<p>","<br>",$text);
+        $cleanText = trim($text);
+        
+        $em_dash = html_entity_decode('&#x2013;', ENT_COMPAT, 'UTF-8');
+        $em_dash2 = html_entity_decode('&#8212;', ENT_COMPAT, 'UTF-8');
+        
+        $cleanText = str_replace("</div><div>","<br>",$cleanText);
+        $cleanText = str_replace("</ul><br>","</ul><br><br>",$cleanText);
+        $cleanText = str_replace("<div>","",$cleanText);
+        $cleanText = str_replace("</div>","",$cleanText);
+        $cleanText = str_replace("<br/>","<br>",$cleanText);
+        $cleanText = str_replace("<p>","<br>",$cleanText);
         $cleanText = str_replace("</p>","",$cleanText);
+        $cleanText = str_replace("<span style=\"font-weight:<br>bold;\">","<span style=\"font-weight:bold;\">",$cleanText);
+        $cleanText = str_replace("<span style=\"font-weight: bold;\">","<span style=\"font-weight:bold;\">",$cleanText);
+        $cleanText = str_replace("<span style=\"color:#365F91;font-weight: bold;\"><br>","<span style=\"color:#365F91;font-weight:bold;\">",$cleanText);
+        $cleanText = str_replace("<span style=\"color:#365F91;font-weight: bold;\">","<span style=\"color:#365F91;font-weight:bold;\">",$cleanText);
+        $cleanText = str_replace("<span style=\"font-weight: bold;\"><br>","<span style=\"font-weight:bold;\">",$cleanText);
+        $cleanText = str_replace("<b>","<span style=\"font-weight:bold;\">",$cleanText);
+        $cleanText = str_replace("</b>","</span>",$cleanText);
+         
+        $cleanText = str_replace("&nbsp;"," ",$cleanText);
+        $cleanText = str_replace("’","'",$cleanText);
+            
+        $cleanText = str_replace($em_dash, "-", $cleanText);            
+        $cleanText = str_replace($em_dash2, "-", $cleanText);
+        $cleanText = str_replace("\u2014", "-", $cleanText);
         
         $broken = explode("<br>",$cleanText);
         
         for ($n = 0; $n < count($broken); $n++) {
-            $broken[$n] = str_replace('<span style="font-weight: bold;">','title|',$broken[$n]);
-            $broken[$n] = str_replace('<span style="color:#365F91;font-weight: bold;">','title|',$broken[$n]);
-            $broken[$n] = str_replace('</span>','',$broken[$n]);
+            $broken[$n] = str_replace("<span style=\"font-weight:bold;\">","title|",$broken[$n]);
+            $broken[$n] = str_replace("<span style=\"color:#365F91;font-weight:bold;\">","titlec|",$broken[$n]);
+            $broken[$n] = str_replace("</span>","",$broken[$n]);
         }
         
         return $broken;
@@ -409,10 +473,32 @@ class RemovalPDF extends \fpdi\FPDI
 
             $this->SetXY($curx,$cury);
         }
+
+        $low_limit = 275;
+        
+        if ('L' == $this->CurOrientation) {
+            $low_limit = 191;
+        }
         
         if (empty($element)) {
+            $cury = $this->GetY();
+            
+            if (35 == $cury) {
+                return max($this->GetY(),35);
+            }
+            
             $cury = $br + $this->GetY();
             $this->SetXY($curx,$cury);
+            
+            $remaining = ($low_limit - $cury - 5) / $br;
+            
+            if (($cury >= $low_limit) or ($remaining < 1)) {
+                $this->AddPage($this->CurOrientation);
+
+                $cury = 35;
+                
+                $this->SetXY($curx,$cury);
+            }
             
             return max($this->GetY(),35);
         }
@@ -426,6 +512,21 @@ class RemovalPDF extends \fpdi\FPDI
             $text_to_print = str_replace('title|','',$element);
             
             $this->MultiCell($cell_width - 2, $br, $text_to_print, 0, 'L', false);
+
+            return max($this->GetY(),35);
+        }
+        
+        if (strpos($element,"titlec|") !== false) {
+            $cury = $this->GetY();
+            
+            $this->SetFont($stds['font-family'],'B',$stds['font-size']);
+            $this->SetTextColor(54,95,145);
+            
+            $text_to_print = str_replace('titlec|','',$element);
+            
+            $this->MultiCell($cell_width - 2, $br, $text_to_print, 0, 'L', false);
+            
+            $this->SetTextColor(0,0,0);
 
             return max($this->GetY(),35);
         }
@@ -458,23 +559,25 @@ class RemovalPDF extends \fpdi\FPDI
         $this->SetFont($stds['font-family'],'',$stds['font-size']);
         $this->SetTextColor(0,0,0);
         
-        $string_to_print = $element;
-
-        $low_limit = 278;
-        
-        if ('L' == $this->CurOrientation) {
-            $low_limit = 191;
-        }
+        $string_to_print = trim($element);
 
         while (!empty($string_to_print)) {
+            if ((" " == $string_to_print) and (35 == $cury)) {
+                break;
+            }
+            
             // tot lines from the current position to the end of the page
             $remaining = ($low_limit - $cury - 5) / $br;
 
             $maxline = min($remaining,$this->nbLines($cell_width, $string_to_print));
 
-            $string_to_print = $this->MultiCell($cell_width, $br, $string_to_print, 0, 'L', true, $maxline);
+            $string_to_print = $this->MultiCell($cell_width, $br, $string_to_print, $stds['print_border'], 'L', true, $maxline);
 
-            if (!empty($string_to_print)) {
+            $cury = $this->GetY();
+            
+            $remaining = ($low_limit - $cury - 5) / $br;
+            
+            if (!empty($string_to_print) or ($remaining < 1)) {
                 $this->AddPage($this->CurOrientation);
 
                 $cury = 35;
@@ -805,7 +908,7 @@ class RemovalPDF extends \fpdi\FPDI
         $sentence .= "\n";
         $sentence .= 'Report Revision: ' . $elems['revision_no'];
         
-        $this->MultiCell(100,$stds['cell_height'], $sentence, $stds['print_border'], 'L', false);
+        $this->MultiCell(115,$stds['cell_height'], $sentence, $stds['print_border'], 'L', false);
         
         $x = 130;
         
@@ -1315,7 +1418,7 @@ class RemovalPDF extends \fpdi\FPDI
         
         $this->setPrintHeader(true);
         
-        foreach ($elems['areas'] as $myarea) {
+        foreach ($elems['areas'] as $n => $myarea) {
             $this->AddPage('L');
             $this->TOC_Entry($myarea->name, 0);
             
@@ -1334,7 +1437,7 @@ class RemovalPDF extends \fpdi\FPDI
 
             $y = $this->printHtmlText($sentence);
             
-            $this->printInspectionsTable($elems['inspections'][$myarea->id],$y);
+            $this->printInspectionsTable($elems['inspections'][$myarea->id],$n+1,$y);
         }
         
         $this->setPrintFooter(true);
@@ -1348,7 +1451,7 @@ class RemovalPDF extends \fpdi\FPDI
         
         $fullpath = public_path() . '/removals' . $elems['removal']->floor_plans_path;
         
-        if (!empty($elems['removal']->floor_plans_path) and file_exists($fullpath) or !is_dir($fullpath)) {
+        if (!empty($elems['removal']->floor_plans_path) and file_exists($fullpath) and !is_dir($fullpath)) {
             $this->setPrintHeader(true);
             $this->AddPage();
             $this->TOC_Entry('Floor Plans', 0);
@@ -1405,7 +1508,7 @@ class RemovalPDF extends \fpdi\FPDI
         
         $fullpath = public_path() . '/removals' . $elems['removal']->access_routes_path;
         
-        if (!empty($elems['removal']->access_routes_path) and file_exists($fullpath) or !is_dir($fullpath)) {
+        if (!empty($elems['removal']->include_access_routes) and !empty($elems['removal']->access_routes_path) and file_exists($fullpath) and !is_dir($fullpath)) {
             $this->setPrintHeader(true);
             $this->AddPage();
             $this->TOC_Entry('Access Routes', 0);
@@ -1533,6 +1636,8 @@ class RemovalPDF extends \fpdi\FPDI
     {
         $stds = $this->defineStandardFont();
         
+        $elems = $this->getElements();
+        
         $this->setPrintHeader(true);
         
         $this->AddPage();
@@ -1564,17 +1669,15 @@ class RemovalPDF extends \fpdi\FPDI
         $this->SetXY($x, $y);
         
         $headers = array(
-            'Item',
-            'Floor / Room / Description',
-            'Timescale',
-            'Cost / ' . chr(163),
+            'ITEM',
+            'TIMESCALE',
+            'COST / ' . chr(163),
         );
         
         $colsw = array(
-            30.0,
-            100.0,
-            25.0,
-            25.0,
+            50.0,
+            50.0,
+            50.0,
         );
         
         $this->SetTextColor(0,0,0);
@@ -1602,44 +1705,26 @@ class RemovalPDF extends \fpdi\FPDI
         
         $rows = array(
             array(
-                '1',
-                'Level 1 ' . chr(38) . ' 2 - Restaurant, Risers, Stairs ' . chr(38) . ' Cupboards asbestos removal',
+                'Site Setup and Welfare',
                 '',
                 '',
             ),
             array(
-                '2',
-                'Level 1 - Restaurant demolition of raised floor',
-                '',
-                '',
-            ),
-            array(
-                '3',
-                'Level 1 - Restaurant soft strip',
-                '',
-                '',
-            ),
-            array(
-                '4',
-                'Level 1 - Kitchen ' . chr(38) . ' Risers asbestos removal',
-                '',
-                '',
-            ),
-            array(
-                '5',
-                'Level 1 - Lift Lobby asbestos removal',
-                '',
-                '',
-            ),
-            array(
-                '6',
-                'TOTALS',
+                'Equipment (If required)',
                 '',
                 '',
             ),
         );
         
-        foreach ($rows as $row) {
+        foreach ($elems['areas'] as $n => $myarea) {
+            $rows[] = array(
+                'Item ' . (($n < 9) ? ('0' . ($n + 1)) : ($n + 1)),
+                '',
+                '',
+            );
+        }
+        
+        foreach ($rows as $c => $row) {
             for ($k = 0; $k < count($row); $k++) {
                 if ($k == 0) {
                     $this->Rect($x, $y, $colsw[0], $cell_height, 'FD');
@@ -1649,17 +1734,28 @@ class RemovalPDF extends \fpdi\FPDI
                     $this->SetXY($x + $this->sumUntil($colsw,$k,-1) + 1, $y + 1);
                 }
 
-                $this->MultiCell($colsw[$k] - 2, $cell_height - 2, $row[$k], 0, (($k == 1) ? 'L' : 'C'), false);
+                $this->MultiCell($colsw[$k] - 2, $cell_height - 2, $row[$k], 0, 'C', false);
             }
             
             $y += $cell_height;
         
             $this->SetXY($x, $y);
+            
+            if (($c < count($rows) - 1) and ($y >= 270)) {
+                $this->AddPage($this->CurOrientation);
+                $y = 35;
+                $this->SetXY($x, $y);
+            }
         }
         
         $y += $cell_height;
-        
         $this->SetXY($x, $y);
+        
+        if ($y >= 209) {
+            $this->AddPage($this->CurOrientation);
+            $y = 35;
+            $this->SetXY($x, $y);
+        } 
         
         $colsw = array(
             30,
