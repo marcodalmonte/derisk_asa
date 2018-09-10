@@ -417,25 +417,12 @@ class RemovalPDF extends \fpdi\FPDI
             return array();
         }
         
-        $cleanText = trim($text);
+        $cleanText = $text;
         
         $em_dash = html_entity_decode('&#x2013;', ENT_COMPAT, 'UTF-8');
         $em_dash2 = html_entity_decode('&#8212;', ENT_COMPAT, 'UTF-8');
         
-        $cleanText = str_replace("</div><div>","<br>",$cleanText);
-        $cleanText = str_replace("</ul><br>","</ul><br><br>",$cleanText);
-        $cleanText = str_replace("<div>","",$cleanText);
-        $cleanText = str_replace("</div>","",$cleanText);
-        $cleanText = str_replace("<br/>","<br>",$cleanText);
-        $cleanText = str_replace("<p>","<br>",$cleanText);
-        $cleanText = str_replace("</p>","",$cleanText);
-        $cleanText = str_replace("<span style=\"font-weight:<br>bold;\">","<span style=\"font-weight:bold;\">",$cleanText);
-        $cleanText = str_replace("<span style=\"font-weight: bold;\">","<span style=\"font-weight:bold;\">",$cleanText);
-        $cleanText = str_replace("<span style=\"color:#365F91;font-weight: bold;\"><br>","<span style=\"color:#365F91;font-weight:bold;\">",$cleanText);
-        $cleanText = str_replace("<span style=\"color:#365F91;font-weight: bold;\">","<span style=\"color:#365F91;font-weight:bold;\">",$cleanText);
-        $cleanText = str_replace("<span style=\"font-weight: bold;\"><br>","<span style=\"font-weight:bold;\">",$cleanText);
-        $cleanText = str_replace("<b>","<span style=\"font-weight:bold;\">",$cleanText);
-        $cleanText = str_replace("</b>","</span>",$cleanText);
+        $cleanText = trim($cleanText);
          
         $cleanText = str_replace("&nbsp;"," ",$cleanText);
         $cleanText = str_replace("’","'",$cleanText);
@@ -446,10 +433,35 @@ class RemovalPDF extends \fpdi\FPDI
         
         $broken = explode("<br>",$cleanText);
         
-        for ($n = 0; $n < count($broken); $n++) {
-            $broken[$n] = str_replace("<span style=\"font-weight:bold;\">","title|",$broken[$n]);
-            $broken[$n] = str_replace("<span style=\"color:#365F91;font-weight:bold;\">","titlec|",$broken[$n]);
-            $broken[$n] = str_replace("</span>","",$broken[$n]);
+        for ($k = 0; $k < count($broken); $k++) {
+            $broken[$k] = trim($broken[$k]);
+            
+            if (strpos($broken[$k],"<font") !== false) {
+                $broken[$k] = str_replace("<font color=\"#365f91;\"><span style=\"font-weight:bold;\">","titlec|",$broken[$k]);
+                $broken[$k] = str_replace("<font color=\"#365f91\"><span style=\"font-weight:bold;\">","titlec|",$broken[$k]);
+                $broken[$k] = str_replace("</span></font>","",$broken[$k]);
+                
+                continue;
+            }
+            
+            if ((strpos($broken[$k],"<span") !== false) and (strpos($broken[$k],"style") !== false)) {
+                $broken[$k] = str_replace("<span style=\"font-weight:bold;\">","title|",$broken[$k]);
+                $broken[$k] = str_replace("<span style=\"font-weight:bold\">","title|",$broken[$k]);
+                $broken[$k] = str_replace("</span>","",$broken[$k]);
+                
+                continue;
+            }
+            
+            if (strpos($broken[$k],"<span") !== false) {
+                $broken[$k] = str_replace("<span>","",$broken[$k]);
+                $broken[$k] = str_replace("</span>","",$broken[$k]);
+                
+                continue;
+            }
+            
+            error_log('broken[' . $k . '] = ' . $broken[$k]);
+            
+            continue;
         }
         
         return $broken;
@@ -509,7 +521,7 @@ class RemovalPDF extends \fpdi\FPDI
             $this->SetFont($stds['font-family'],'B',$stds['font-size']);
             $this->SetTextColor(0,0,0);
             
-            $text_to_print = str_replace('title|','',$element);
+            $text_to_print = str_replace("title|","",$element);
             
             $this->MultiCell($cell_width - 2, $br, $text_to_print, 0, 'L', false);
 
@@ -522,7 +534,7 @@ class RemovalPDF extends \fpdi\FPDI
             $this->SetFont($stds['font-family'],'B',$stds['font-size']);
             $this->SetTextColor(54,95,145);
             
-            $text_to_print = str_replace('titlec|','',$element);
+            $text_to_print = str_replace("titlec|","",$element);
             
             $this->MultiCell($cell_width - 2, $br, $text_to_print, 0, 'L', false);
             
@@ -532,12 +544,12 @@ class RemovalPDF extends \fpdi\FPDI
         }
         
         if (strpos($element,"<ul>") !== false) {
-            $text_to_print = str_replace("<ul>",'',$element);
-            $text_to_print = str_replace("</ul>",'',$text_to_print);
+            $text_to_print = str_replace("<ul>","",$element);
+            $text_to_print = str_replace("</ul>","",$text_to_print);
             
-            $text_to_print = str_replace("</li><li>",'|',$text_to_print);
-            $text_to_print = str_replace("<li>",'',$text_to_print);
-            $text_to_print = str_replace("</li>",'',$text_to_print);
+            $text_to_print = str_replace("</li><li>","|",$text_to_print);
+            $text_to_print = str_replace("<li>","",$text_to_print);
+            $text_to_print = str_replace("</li>","",$text_to_print);
             
             $lis = explode("|",$text_to_print);
             

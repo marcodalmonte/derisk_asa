@@ -9,6 +9,74 @@ use Illuminate\Support\Facades\Log;
 
 class RemovalsController extends Controller
 {
+    private function cleanText($text)
+    {
+        $clean = $text;
+        
+        $clean = str_replace("\t\n","\n",$clean);
+        $clean = str_replace("\n"," ",$clean);
+        $clean = preg_replace("/<font color=\"#365f91\">(.+?)<\/font>/is","<bcolored>$1</bcolored>",$clean);
+        $clean = preg_replace("/<font (.+?)>(.+?)<\/font>/is","$2",$clean);
+        $clean = preg_replace("/<bcolored><b>(.+?)<\/b><\/bcolored>/is","<bcolored>$1</bcolored>",$clean);
+        $clean = preg_replace("/<bcolored>(.+?)<br>(.+?)<\/bcolored>/is","<bcolored>$1 $2</bcolored>",$clean);
+        $clean = preg_replace("/<li><br>(.+?)<\/li>/is","<li>$1</li>",$clean);
+        $clean = preg_replace("/<li>(\s+)<br>(.+?)<\/li>/is","<li>$1</li>",$clean);
+        $clean = preg_replace("/<li>(.+?)<br><\/li>/is","<li>$1</li>", $clean);
+        $clean = preg_replace("/<li>(.+?)<br>(\s+)<\/li>/is","<li>$1</li>", $clean);
+        $clean = preg_replace("/<li>(.+?)<br>(.+?)<\/li>/is","<li>$1 $2</li>", $clean);
+        $clean = preg_replace("/<li><br>(.+?)<br>(.+?)<br><\/li>/is","<li>$1 $2</li>",$clean);
+        $clean = preg_replace("/<li><br>(.+?)<br>(.+?)<br>(\s+)<\/li>/is","<li>$1 $2</li>",$clean);
+        $clean = preg_replace("/(\s+)/is"," ",$clean);
+        $clean = preg_replace("/<p (.+?)>(.+?)<\/p>/is","<p>$2</p>",$clean);
+        $clean = preg_replace("/<p><font (.+?)>(.+?)<\/font><\/p>/is","<p>$2</p>",$clean);
+        $clean = str_replace("<p><br>","<br>",$clean);
+        $clean = str_replace("<br></p>","<br>",$clean);
+        $clean = str_replace("<li><p>","<li>",$clean);
+        $clean = str_replace("</p></li>","</li>",$clean);
+        $clean = preg_replace("/(.+?)<style(.+?)>(.+?)<\/style>(.+?)<p>(.+?)/is","<p>$5",$clean);
+        $clean = strip_tags($clean,"<br><b><bcolored><span><ul><li><p>");
+        $clean = preg_replace("/<bcolored>(.+?)<\/bcolored>/is","<font color=\"#365f91\">$1</font>",$clean);
+        $clean = preg_replace("/(.+?)<br><br>/is","$1",$clean);
+        $clean = preg_replace("/<\/p><br><p>/is","</p><cbr></p>",$clean);
+        $clean = str_replace("<br>"," ",$clean);
+        $clean = str_replace("<cbr>","<br>",$clean);
+        $clean = str_replace("</ul>","</ul><br>",$clean);
+        $clean = preg_replace("/(.+?)<br><\/p>(.+?)/is","$1<br><p>$2",$clean);
+        $clean = preg_replace("/<\/b>(\s+)<p>(.+?)/is","</b></p><br><p>$2",$clean);
+        $clean = preg_replace("/<p>(\s+)<\/p>/is","",$clean);
+        $clean = preg_replace("/.(\s+)<p>/is",".</p><br><p>",$clean);
+        $clean = str_replace("</p.","</p>",$clean);
+        $clean = str_replace("</p></p>","</p>",$clean);
+        $clean = preg_replace("/<\/p>(\s+)<\/p>/is","</p>",$clean);
+        $clean = preg_replace("/<li.<\/p><br><p>(.+?)<\/p>(\s+)<\/li>/is","<li>$1</li>",$clean);
+        $clean = str_replace("<br.</p><br>","<br><br>",$clean);
+        $clean = preg_replace("/<br>(\s+)<\/p><br>/is","<br><br>",$clean);
+        $clean = preg_replace("/(\s+)<\/b>(\s+)<\/p>/is","</b></p>",$clean);
+        $clean = preg_replace("/(\s+)<\/p>/is","</p>",$clean);
+        $clean = preg_replace("/(\s+)<ul>/is","<ul>",$clean);
+        $clean = preg_replace("/<p>(.+?)<\/p>/is","<span>$1</span>",$clean);
+        $clean = preg_replace("/<b>(.+?)<\/b>/is","<span style=\"font-weight:bold;\">$1</span>",$clean);
+        $clean = preg_replace("/<span><font (.+?)>(.+?)<\/font><\/span>/is","<font $1>$2</font><br>",$clean);
+        $clean = preg_replace("/<span><span style=\"font-weight:bold;\">(.+?)<\/span><\/span>/is","<span style=\"font-weight:bold;\">$1</span>",$clean);
+        $clean = str_replace("span><span","span><br><br><span",$clean);
+        $clean = str_replace("span><br><span","span><br><br><span",$clean);
+        $clean = str_replace("span><br><font","span><br><br><font",$clean);
+        $clean = str_replace("span><ul","span><br><ul",$clean);
+        $clean = preg_replace("/font>(\s+)<span/is","font><br><br><span",$clean);
+        $clean = preg_replace("/font><span/is","font><br><br><span",$clean);
+        $clean = preg_replace("/span><font/is","span><br><br><font",$clean);
+        $clean = preg_replace("/ul><br><span/is","ul><br><br><span",$clean);
+        $clean = preg_replace("/ul><br><font/is","ul><br><br><font",$clean);
+        $clean = preg_replace("/ul>(\s+)<br><span/is","ul><br><br><span",$clean);
+        $clean = preg_replace("/ul>(\s+)<br><font/is","ul><br><br><font",$clean);
+        $clean = preg_replace("/ul><br>(\s+)<span/is","ul><br><br><span",$clean);
+        $clean = preg_replace("/ul><br>(\s+)<font/is","ul><br><br><font",$clean);
+        $clean = preg_replace("/span>(\s+)<span/is","span><br><span",$clean);
+        $clean = str_replace("</p>","<br>",$clean);
+        
+        return $clean;
+    }
+    
     public function index()
     {
         $fremovals = DB::table('removals')
@@ -179,20 +247,14 @@ class RemovalsController extends Controller
         $approved_by = $request->input('approved_by');
         $approved_by_signature = $request->input('approved_by_signature');
         $approval_date = $request->input('approval_date');
-        $preliminaries = $request->input('preliminaries');
-        $preliminaries = str_replace("<div>","",$preliminaries);
-        $preliminaries = str_replace("</div>","",$preliminaries);
+        $preliminaries = $this->cleanText($request->input('preliminaries'));
         $site_picture = $request->input('site_picture');
         $map_picture = $request->input('map_picture');
         $floor_plans = $request->input('floor_plans');
         $access_routes = $request->get('access_routes');
         $bulk_analysis_certificate = $request->input('bulk_analysis_certificate');
-        $general_requirements = $request->input('general_requirements');
-        $general_requirements = str_replace("<div>","",$general_requirements);
-        $general_requirements = str_replace("</div>","",$general_requirements);
-        $tender_submission = $request->input('tender_submission');
-        $tender_submission = str_replace("<div>","",$tender_submission);
-        $tender_submission = str_replace("</div>","",$tender_submission);
+        $general_requirements = $this->cleanText($request->input('general_requirements'));
+        $tender_submission = $this->cleanText($request->input('tender_submission'));
         $include_access_routes = $request->get('include_access_routes');
         $revision_comments = $request->input('revision_comments');
         $new_revision = $request->input('new_revision');
