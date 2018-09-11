@@ -138,6 +138,7 @@ function importPicture(picture_id)
     var form_data = new FormData();                  
     form_data.append("filename", file_data);
     form_data.append("shop_id",shopid);
+    form_data.append('picture_id',picture_id);
     
     jQuery.ajax({
         'type': 'post',

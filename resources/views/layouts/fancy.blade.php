@@ -34,9 +34,9 @@
         <link type="text/css" rel="stylesheet" href="/css/validations/bootstrapValidator.min.css" />
 
         <!-- Derisk CSS -->
-        <link type="text/css" rel="stylesheet" href="/css/duk.css" />
-        <link type="text/css" rel="stylesheet" href="/css/derisk.css" />
-        <link type="text/css" rel="stylesheet" href="/css/fra.css" />
+        <link type="text/css" rel="stylesheet" href="/css/duk.css{{ time() }}" />
+        <link type="text/css" rel="stylesheet" href="/css/derisk.css{{ time() }}" />
+        <link type="text/css" rel="stylesheet" href="/css/fra.css{{ time() }}" />
 
         <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
         <script type="text/javascript" src="/js/jquery.js"></script>
@@ -75,9 +75,9 @@
 
         <!-- Common JS -->
         <script type="text/javascript" src="/js/common.js"></script>
-        <script type="text/javascript" src="/js/duk.js"></script>
-        <script type="text/javascript" src="/js/derisk.js"></script>
-        <script type="text/javascript" src="/js/fra.js"></script>
+        <script type="text/javascript" src="/js/duk.js{{ time() }}"></script>
+        <script type="text/javascript" src="/js/derisk.js{{ time() }}"></script>
+        <script type="text/javascript" src="/js/fra.js{{ time() }}"></script>
 
         <!-- HTML5 shiv and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>

@@ -541,6 +541,10 @@ class AssessmentsController extends Controller
         
         $originalFileName = strtolower($filename->getClientOriginalName());
         
+        if ($originalFileName == 'image.jpg') {
+            $originalFileName = 'signature.jpg';
+        }
+        
         $filename->move($folder_name,$originalFileName);
         
         return '"/' . strtolower($shop_name) . '/' . $originalFileName . '"';
@@ -569,6 +573,10 @@ class AssessmentsController extends Controller
         }
         
         $originalFileName = strtolower($filename->getClientOriginalName());
+        
+        if ($originalFileName == 'image.jpg') {
+            $originalFileName = 'review_signature.jpg';
+        }
         
         $filename->move($folder_name,$originalFileName);
         
@@ -599,6 +607,10 @@ class AssessmentsController extends Controller
         
         $originalFileName = strtolower($filename->getClientOriginalName());
         
+        if ($originalFileName == 'image.jpg') {
+            $originalFileName = 'main_picture.jpg';
+        }
+        
         $filename->move($folder_name,$originalFileName);
         
         return '"/' . strtolower($shop_name) . '/' . $originalFileName . '"';
@@ -608,6 +620,7 @@ class AssessmentsController extends Controller
     {
         $filename = $request->file('filename');
         $shop_id = $request->input('shop_id');
+        $picture_id = $request->input('picture_id');
         
         if (!file_exists($filename) || !is_readable($filename)) {
             return '0';
@@ -627,6 +640,10 @@ class AssessmentsController extends Controller
         }
         
         $originalFileName = strtolower($filename->getClientOriginalName());
+        
+        if ($originalFileName == 'image.jpg') {
+            $originalFileName = 'wrong_' . $picture_id . '.jpg';
+        }
         
         $filename->move($folder_name,$originalFileName);
         
