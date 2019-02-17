@@ -141,6 +141,7 @@ class SurveysController extends Controller
                     ->get();
         
         $surveyors = DB::table('surveyors')
+                    ->where('active','=',1)
                     ->get();
         
         $labs = DB::table('labs')

@@ -18,6 +18,7 @@ class CreateSurveyorsTable extends Migration
             $table->string('name');
             $table->string('surname');
             $table->string('email')->unique();
+            $table->unsignedInteger('active')->default(1);
             $table->timestamps();
         });
     }
