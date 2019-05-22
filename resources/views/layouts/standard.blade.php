@@ -161,6 +161,9 @@ $url = str_replace($cpath,'',Request::url());
                             <li<?php echo (('/users' == $url) ? ' class="active"' : '') ?>>
                                 <a href="/users"><i class="icon-account_circle"></i>Users</a>
                             </li>
+                            <li<?php echo (('/settings' == $url) ? ' class="active"' : '') ?>>
+                                <a href="/settings"><i class="icon-open-book"></i>Settings</a>
+                            </li>
                             <li<?php echo (('/clients' == $url) ? ' class="active"' : '') ?>>
                                 <a href="/clients"><i class="icon-old-phone"></i>Clients</a>
                             </li>

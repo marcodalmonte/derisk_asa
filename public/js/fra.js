@@ -1045,4 +1045,164 @@ jQuery(document).ready(function() {
             checkAnswer(id,'notknown');
         }
     });
+    
+    jQuery('#idclient').on('change',function() {
+        var idclient = jQuery(this).val();
+        
+        if (idclient.length == 0) {
+            return false;
+        }
+        
+        window.location.href = '/recommendations-and-comments/' + idclient;
+    });
+    
+    jQuery('.save_recomm').on('click',function() {
+        var client_id = jQuery('#idclient').val();
+        var question_id = jQuery(this).attr('rel').replace('recomm_new_','');
+        var recomm_text = jQuery('#recomm_new_' + question_id).val().trim();
+        
+        jQuery.ajax({
+            type: "POST",
+            url: '/save-recommendation',
+            data: {
+                'client_id': client_id,
+                'question_id': question_id,
+                'text': recomm_text
+            },
+            async: false,
+            dataType: "json",
+            error: function (jqXHR,textStatus,errorThrown) {
+            },
+            success: function (data, textStatus, jqXHR) {
+                if (data['saved'] == '0') {
+                    return false;
+                }
+                
+                location.reload(true);
+            }
+        });        
+    });
+    
+    jQuery('.update_recomm').on('click',function() {
+        var recomm_id = jQuery(this).attr('rel').replace('recomm_','');
+        var recomm_text = jQuery('#recomm_' + recomm_id).val().trim();
+        
+        jQuery.ajax({
+            type: "POST",
+            url: '/save-recommendation',
+            data: {
+                'recomm_id': recomm_id,
+                'text': recomm_text
+            },
+            async: false,
+            dataType: "json",
+            error: function (jqXHR,textStatus,errorThrown) {
+            },
+            success: function (data, textStatus, jqXHR) {
+                if (data['saved'] == '0') {
+                    return false;
+                }
+                
+                location.reload(true);
+            }
+        });        
+    });
+    
+    jQuery('.delete_recomm').on('click',function() {
+        var recomm_id = jQuery(this).attr('rel').replace('recomm_','');
+        
+        jQuery.ajax({
+            type: "POST",
+            url: '/delete-recommendation',
+            data: {
+                'recomm_id': recomm_id
+            },
+            async: false,
+            dataType: "json",
+            error: function (jqXHR,textStatus,errorThrown) {
+            },
+            success: function (data, textStatus, jqXHR) {
+                if (data['deleted'] == '0') {
+                    return false;
+                }
+                
+                location.reload(true);
+            }
+        });
+    });
+    
+    jQuery('.save_comment').on('click',function() {
+        var client_id = jQuery('#idclient').val();
+        var question_id = jQuery(this).attr('rel').replace('comment_new_','');
+        var comment_text = jQuery('#comment_new_' + question_id).val().trim();
+        
+        jQuery.ajax({
+            type: "POST",
+            url: '/save-comment',
+            data: {
+                'client_id': client_id,
+                'question_id': question_id,
+                'text': comment_text
+            },
+            async: false,
+            dataType: "json",
+            error: function (jqXHR,textStatus,errorThrown) {
+            },
+            success: function (data, textStatus, jqXHR) {
+                if (data['saved'] == '0') {
+                    return false;
+                }
+                
+                location.reload(true);
+            }
+        });        
+    });
+    
+    jQuery('.update_comment').on('click',function() {
+        var comment_id = jQuery(this).attr('rel').replace('comment_','');
+        var comment_text = jQuery('#comment_' + comment_id).val().trim();
+        
+        jQuery.ajax({
+            type: "POST",
+            url: '/save-comment',
+            data: {
+                'comment_id': comment_id,
+                'text': comment_text
+            },
+            async: false,
+            dataType: "json",
+            error: function (jqXHR,textStatus,errorThrown) {
+            },
+            success: function (data, textStatus, jqXHR) {
+                if (data['saved'] == '0') {
+                    return false;
+                }
+                
+                location.reload(true);
+            }
+        });
+    });
+    
+    jQuery('.delete_comment').on('click',function() {
+        var comment_id = jQuery(this).attr('rel').replace('comment_','');
+        
+        jQuery.ajax({
+            type: "POST",
+            url: '/delete-comment',
+            data: {
+                'comment_id': comment_id
+            },
+            async: false,
+            dataType: "json",
+            error: function (jqXHR,textStatus,errorThrown) {
+            },
+            success: function (data, textStatus, jqXHR) {
+                if (data['deleted'] == '0') {
+                    return false;
+                }
+                
+                location.reload(true);
+            }
+        });
+    });
 });

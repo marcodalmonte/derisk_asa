@@ -77,8 +77,6 @@ Route::post('removeReport','ReportsController@removeReport');
 
 Route::post('printReport','PdfController@printReport');
 
-Route::post('upload','TabletController@uploadDataFromTablet');
-
 Route::get('/specs','RemovalsController@index');
 
 Route::get('/spec/{spec}','RemovalsController@getRemoval');
@@ -104,6 +102,8 @@ Route::get('/issues/{ukasnumber}/{revision}','SurveysController@showIssue');
 Route::post('/deleteSurveyReportRevision','SurveysController@deleteSurveyReportRevision');
 
 Route::post('/saveSurveyReportRevision','SurveysController@saveSurveyReportRevision');
+
+Route::get('/settings','SettingsController@index');
 
 /*****************************************************************************/
 
@@ -146,3 +146,9 @@ Route::get('/rasettings','RaSettingsController@index');
 Route::post('/saveSettings','RaSettingsController@saveSettings');
 
 Route::post('/checkAnswer','AssessmentsController@checkAnswer');
+
+Route::get('/recommendations-and-comments', function () {
+    return redirect('/recommendations-and-comments/1');
+});
+
+Route::get('/recommendations-and-comments/{client_id}','AssessmentsController@getRecommendationsAndComments');

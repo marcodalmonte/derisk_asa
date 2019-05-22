@@ -12,6 +12,7 @@
             <div class="panel panel-light">
                 <div class="panel-heading">
                     <h4>Reports</h4>
+                    <a href="{{ url('/recommendations-and-comments') }}" id="recommendations-link" class="btn btn-info">Recommendations and Comments</a>
                     <a href="{{ url('/rasettings') }}" id="settings-link" data-fancybox-type="iframe" class="btn btn-info">Settings</a>
                 </div>
                 <div class="panel-body">

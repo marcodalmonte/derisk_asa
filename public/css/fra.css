@@ -207,6 +207,11 @@ textarea::-ms-input-placeholder { /* Microsoft Edge */
 
 #settings-link {
     float: right;
+    margin-right: 10px;
+}
+
+#recommendations-link {
+    float: right;
 }
 
 #dialog-confirm .ui-icon-alert {
@@ -231,6 +236,31 @@ input.completion {
 .wrong-answer {
     color: #CA322D;
     font-weight: bold;
+}
+
+.icon-td {
+    padding: 10px;
+    vertical-align: top;
+}
+
+.icon-td a {
+    float: left;
+    margin-bottom: 10px;
+}
+
+#filter-row {
+    margin-bottom: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+#client-filter-div label {
+    float: left;
+    margin-right: 10px;
+}
+
+#client-filter-div select {
+    float: left;
 }
 
 @media (max-width: 1300px) {

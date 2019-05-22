@@ -333,9 +333,6 @@ class AssessmentsController extends Controller
         $rareadycomments = array();
         $rareadyrecommendations = array();
         
-        $mathsym = ((1 == $curshop->client_id) ? '=' : '!=');
-        $client_ref = '1';
-        
         foreach ($fquestions as $fquestion) {
             $questions[$fquestion->rasection_id][] = $fquestion;
             $answers[$fquestion->id] = new \stdClass();
@@ -348,17 +345,43 @@ class AssessmentsController extends Controller
             $answers[$fquestion->id]->date_of_completion = '';
             $answers[$fquestion->id]->info = '';
             
-            $rareadycomments[$fquestion->id] = DB::table('rareadycomments')
+            $tot_comments = DB::table('rareadycomments')
                 ->where('raquestion_id','=',$fquestion->id)
-                ->where('client_id',$mathsym,$client_ref)
-                ->orderBy('id','asc')
-                ->get();
+                ->where('client_id','=',$curshop->client_id)
+                ->count();
             
-            $rareadyrecommendations[$fquestion->id] = DB::table('rareadyrecommendations')
+            if ($tot_comments > 0) {
+                $rareadycomments[$fquestion->id] = DB::table('rareadycomments')
+                    ->where('raquestion_id','=',$fquestion->id)
+                    ->where('client_id','=',$curshop->client_id)
+                    ->orderBy('id','asc')
+                    ->get();
+            } else {
+                $rareadycomments[$fquestion->id] = DB::table('rareadycomments')
+                    ->where('raquestion_id','=',$fquestion->id)
+                    ->where('client_id','=',1)
+                    ->orderBy('id','asc')
+                    ->get();
+            }  
+            
+            $tot_recomms = DB::table('rareadyrecommendations')
                 ->where('raquestion_id','=',$fquestion->id)
-                ->where('client_id',$mathsym,$client_ref)
-                ->orderBy('id','asc')
-                ->get();
+                ->where('client_id','=',$curshop->client_id)
+                ->count();
+            
+            if ($tot_recomms > 0) {
+                $rareadyrecommendations[$fquestion->id] = DB::table('rareadyrecommendations')
+                    ->where('raquestion_id','=',$fquestion->id)
+                    ->where('client_id','=',$curshop->client_id)
+                    ->orderBy('id','asc')
+                    ->get();
+            } else {
+                $rareadyrecommendations[$fquestion->id] = DB::table('rareadyrecommendations')
+                    ->where('raquestion_id','=',$fquestion->id)
+                    ->where('client_id','=',1)
+                    ->orderBy('id','asc')
+                    ->get();
+            }
         }
         
         $raothers = DB::table('raothers')
@@ -1066,5 +1089,187 @@ class AssessmentsController extends Controller
         }
         
         return 'ok';
+    }
+    
+    public function getRecommendationsAndComments($client_id)
+    {
+        $shop_clients = DB::table('rashops')
+                ->select('client_id')
+                ->distinct()
+                ->get();
+        
+        $clients = array();
+        
+        foreach ($shop_clients as $shop_client) {
+            $clients[] = DB::table('clients')
+                            ->where('id','=',$shop_client->client_id)
+                            ->select('id','companyname')
+                            ->first();
+        }
+        
+        $sections = DB::table('rasections')
+                ->orderBy('id','ASC')
+                ->select('id','name')
+                ->get();
+        
+        $questions = array();
+        
+        $recommendations = array();
+        $comments = array();
+        
+        foreach ($sections as $section) {
+            $questions[$section->id] = DB::table('raquestions')
+                                        ->where('rasection_id','=',$section->id)
+                                        ->select('id','question')
+                                        ->get();
+            
+            foreach ($questions[$section->id] as $curquestion) {
+                $recommendations[$curquestion->id] = DB::table('rareadyrecommendations')
+                                                                                ->where('raquestion_id','=',$curquestion->id)
+                                                                                ->where('client_id','=',$client_id)
+                                                                                ->select('id','text')
+                                                                                ->get();
+                    
+                if (empty($recommendations[$curquestion->id])) {
+                    $recommendations[$curquestion->id] = array();
+                }
+
+                $comments[$curquestion->id] = DB::table('rareadycomments')
+                                                                        ->where('raquestion_id','=',$curquestion->id)
+                                                                        ->where('client_id','=',$client_id)
+                                                                        ->select('id','text')
+                                                                        ->get();
+
+                if (empty($comments[$curquestion->id])) {
+                    $comments[$curquestion->id] = array();
+                }
+            }
+        }
+        
+        $passed_data = array(
+            'title' => 'Recommendations and Comments',
+            'clients' =>  $clients,
+            'client_id' => $client_id,
+            'sections' => $sections,
+            'questions' => $questions,
+            'recommendations' => $recommendations,
+            'comments' => $comments,
+        );
+        
+        return view('recommendations', $passed_data);
+    }
+    
+    public function saveRecommendation(Request $request)
+    {
+        $recomm_id = $request->input('recomm_id');
+        $raquestion_id = $request->input('question_id');
+        $text = $request->input('text');
+        $client_id = $request->input('client_id');
+        
+        $mdate = date('Y-m-d H:i:s',time());
+        
+        if (empty($raquestion_id) or empty($client_id)) {
+            return response()->json(['saved' => 0]);
+        }
+        
+        $found = null;
+
+        if (!empty($recomm_id)) {
+            $found = DB::table('rareadyrecommendations')
+                        ->where('id','=',$recomm_id)
+                        ->first();
+        }
+        
+        if ($found == null) {
+            DB::table('rareadyrecommendations')
+                ->insert([
+                    'raquestion_id' => $raquestion_id,
+                    'text' => $text,
+                    'client_id' => $client_id,
+                    'created_at' => $mdate,
+                    'updated_at' => $mdate,
+                ]);
+        } else {
+            DB::table('rareadyrecommendations')
+                ->where('id','=',$recomm_id)
+                ->update([
+                    'text' => $text,
+                    'updated_at' => $mdate,
+                ]);
+        }
+        
+        return response()->json(['saved' => 1]);
+    }
+    
+    public function saveComment(Request $request)
+    {
+        $comment_id = $request->input('comment_id');
+        $raquestion_id = $request->input('question_id');
+        $text = $request->input('text');
+        $client_id = $request->input('client_id');
+        
+        $mdate = date('Y-m-d H:i:s',time());
+        
+        if (empty($raquestion_id) or empty($client_id)) {
+            return response()->json(['saved' => 0]);
+        }
+        
+        $found = null;
+
+        if (!empty($comment_id)) {
+            $found = DB::table('rareadycomments')
+                        ->where('id','=',$comment_id)
+                        ->first();
+        }
+        
+        if ($found == null) {
+            DB::table('rareadycomments')
+                ->insert([
+                    'raquestion_id' => $raquestion_id,
+                    'text' => $text,
+                    'client_id' => $client_id,
+                    'created_at' => $mdate,
+                    'updated_at' => $mdate,
+                ]);
+        } else {
+            DB::table('rareadycomments')
+                ->where('id','=',$comment_id)
+                ->update([
+                    'text' => $text,
+                    'updated_at' => $mdate,
+                ]);
+        }
+        
+        return response()->json(['saved' => 1]);
+    }
+    
+    public function deleteRecommendation(Request $request)
+    {
+        $recomm_id = $request->input('recomm_id');
+        
+        if (empty($recomm_id)) {
+            return response()->json(['deleted' => 0]);
+        }
+        
+        DB::table('rareadyrecommendations')
+            ->where('id','=',$recomm_id)
+            ->delete();
+        
+        return response()->json(['deleted' => 1]);
+    }
+    
+    public function deleteComment(Request $request)
+    {
+        $comment_id = $request->input('comment_id');
+        
+        if (empty($comment_id)) {
+            return response()->json(['deleted' => 0]);
+        }
+        
+        DB::table('rareadycomments')
+            ->where('id','=',$comment_id)
+            ->delete();
+        
+        return response()->json(['deleted' => 1]);
     }
 }
