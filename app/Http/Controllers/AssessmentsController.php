@@ -206,6 +206,9 @@ class AssessmentsController extends Controller
             'review_date'                       =>  '',
             'review_by'                         =>  '',
             'review_signature'                  =>  '',
+			'text_after_review_table'           =>  '',
+            'competence'                        =>  '',
+            'guidance_used'                     =>  '',
             'completed'                         =>  0,
         );
         
@@ -262,6 +265,9 @@ class AssessmentsController extends Controller
                 'review_date'                       =>  date('d/m/Y',(empty($firerisk->review_date) ? time() : $firerisk->review_date)),
                 'review_by'                         =>  $firerisk->review_by,
                 'review_signature'                  =>  $firerisk->review_signature,
+			    'text_after_review_table'           =>  $firerisk->text_after_review_table,
+				'competence'                        =>  $firerisk->competence,
+				'guidance_used'                     =>  $firerisk->guidance_used,
                 'completed'                         =>  $firerisk->completed,
             );
         }
@@ -326,6 +332,7 @@ class AssessmentsController extends Controller
         }
         
         $fquestions = DB::table('raquestions')
+				->where('client_id',$curshop->client_id)
                 ->orderBy('rasection_id','asc')
                 ->orderBy('id','asc')
                 ->get();
@@ -545,7 +552,7 @@ class AssessmentsController extends Controller
         $filename = $request->file('filename');
         $shop_id = $request->input('shop_id');
         
-        if (!file_exists($filename) || !is_readable($filename)) {
+        if (!file_exists($filename) or !is_readable($filename)) {
             return '0';
         }
         
@@ -555,6 +562,10 @@ class AssessmentsController extends Controller
                 ->first();
         
         $shop_name = str_replace(" ","-",$fshop->name);
+		$shop_name = str_replace(",","-",$shop_name);
+		$shop_name = str_replace(",-","-",$shop_name);
+		$shop_name = str_replace("--","-",$shop_name);
+		$shop_name = str_replace("'","",$shop_name);
         
         $folder_name = public_path() . '/fra/' . strtolower($shop_name);
         
@@ -567,6 +578,14 @@ class AssessmentsController extends Controller
         if ($originalFileName == 'image.jpg') {
             $originalFileName = 'signature.jpg';
         }
+
+		$originalFileName = str_replace(" ","-",$originalFileName);
+		$originalFileName = str_replace("..",".",$originalFileName);
+		$originalFileName = str_replace(",-","-",$originalFileName);
+		$originalFileName = str_replace(",","",$originalFileName);
+		$originalFileName = str_replace("--","-",$originalFileName);
+		$originalFileName = str_replace("'","",$originalFileName);
+		$originalFileName = str_replace(".jpeg.jpg",".jpg",$originalFileName);
         
         $filename->move($folder_name,$originalFileName);
         
@@ -588,6 +607,10 @@ class AssessmentsController extends Controller
                 ->first();
         
         $shop_name = str_replace(" ","-",$fshop->name);
+		$shop_name = str_replace(",","-",$shop_name);
+		$shop_name = str_replace(",-","-",$shop_name);
+		$shop_name = str_replace("--","-",$shop_name);
+		$shop_name = str_replace("'","",$shop_name);
         
         $folder_name = public_path() . '/fra/' . strtolower($shop_name);
         
@@ -600,6 +623,14 @@ class AssessmentsController extends Controller
         if ($originalFileName == 'image.jpg') {
             $originalFileName = 'review_signature.jpg';
         }
+
+		$originalFileName = str_replace(" ","-",$originalFileName);
+		$originalFileName = str_replace("..",".",$originalFileName);
+		$originalFileName = str_replace(",-","-",$originalFileName);
+		$originalFileName = str_replace(",","",$originalFileName);
+		$originalFileName = str_replace("--","-",$originalFileName);
+		$originalFileName = str_replace("'","",$originalFileName);
+		$originalFileName = str_replace(".jpeg.jpg",".jpg",$originalFileName);
         
         $filename->move($folder_name,$originalFileName);
         
@@ -621,6 +652,10 @@ class AssessmentsController extends Controller
                 ->first();
         
         $shop_name = str_replace(" ","-",$fshop->name);
+		$shop_name = str_replace(",","-",$shop_name);
+		$shop_name = str_replace(",-","-",$shop_name);
+		$shop_name = str_replace("--","-",$shop_name);
+		$shop_name = str_replace("'","",$shop_name);
         
         $folder_name = public_path() . '/fra/' . strtolower($shop_name);
         
@@ -633,6 +668,14 @@ class AssessmentsController extends Controller
         if ($originalFileName == 'image.jpg') {
             $originalFileName = 'main_picture.jpg';
         }
+
+		$originalFileName = str_replace(" ","-",$originalFileName);
+		$originalFileName = str_replace("..",".",$originalFileName);
+		$originalFileName = str_replace(",-","-",$originalFileName);
+		$originalFileName = str_replace(",","",$originalFileName);
+		$originalFileName = str_replace("--","-",$originalFileName);
+		$originalFileName = str_replace("'","",$originalFileName);
+		$originalFileName = str_replace(".jpeg.jpg",".jpg",$originalFileName);
         
         $filename->move($folder_name,$originalFileName);
         
@@ -655,6 +698,10 @@ class AssessmentsController extends Controller
                 ->first();
         
         $shop_name = str_replace(" ","-",$fshop->name);
+		$shop_name = str_replace(",","-",$shop_name);
+		$shop_name = str_replace(",-","-",$shop_name);
+		$shop_name = str_replace("--","-",$shop_name);
+		$shop_name = str_replace("'","",$shop_name);
         
         $folder_name = public_path() . '/fra/' . strtolower($shop_name);
         
@@ -667,6 +714,14 @@ class AssessmentsController extends Controller
         if ($originalFileName == 'image.jpg') {
             $originalFileName = 'wrong_' . $picture_id . '.jpg';
         }
+
+		$originalFileName = str_replace(" ","-",$originalFileName);
+		$originalFileName = str_replace("..",".",$originalFileName);
+		$originalFileName = str_replace(",-","-",$originalFileName);
+		$originalFileName = str_replace(",","",$originalFileName);
+		$originalFileName = str_replace("--","-",$originalFileName);
+		$originalFileName = str_replace("'","",$originalFileName);
+		$originalFileName = str_replace(".jpeg.jpg",".jpg",$originalFileName);
         
         $filename->move($folder_name,$originalFileName);
         
@@ -709,6 +764,10 @@ class AssessmentsController extends Controller
             $splitted = explode('/',$next_date_recommended);
             $next_date_recommended = strtotime($splitted[2] . '-' . $splitted[1] . '-' . $splitted[0]);
         }
+
+		$competence = $request->input('competence');
+		$guidance_used = $request->input('guidance_used');
+		$text_after_review_table = $request->input('text_after_review_table');
         
         $survey_date = $request->input('survey_date');
         
@@ -799,6 +858,9 @@ class AssessmentsController extends Controller
                 'survey_date'                       =>  $survey_date,
                 'review_date'                       =>  $review_date,
                 'review_signature'                  =>  $review_signature,
+				'text_after_review_table'           =>  $text_after_review_table,
+				'competence'                        =>  $competence,
+				'guidance_used'                     =>  $guidance_used,
                 'completed'                         =>  $completed,
                 'created_at'                        =>  $creation_date,
                 'updated_at'                        =>  $modify_date,
@@ -841,6 +903,9 @@ class AssessmentsController extends Controller
                 'survey_date'                       =>  $survey_date,
                 'review_date'                       =>  $review_date,
                 'review_signature'                  =>  $review_signature,
+				'text_after_review_table'           =>  $text_after_review_table,
+				'competence'                        =>  $competence,
+				'guidance_used'                     =>  $guidance_used,
                 'completed'                         =>  $completed,
                 'created_at'                        =>  $creation_date,
                 'updated_at'                        =>  $modify_date,

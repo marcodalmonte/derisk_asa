@@ -153,6 +153,7 @@ foreach ($rasections as $rasection) {
         <div class="clearfix"></div>
             
         <input type="hidden" id="shop_id" name="shop_id" value="{{ $curshop->id }}" />
+        <input type="hidden" id="client_id" name="client_id" value="{{ $curshop->client_id }}" />
         <input type="hidden" id="revision" name="revision" value="{{ $revision }}" />
         <input type="hidden" id="user_email" name="user_email" value="{{ Auth::user()->email }}" />
         <input type="hidden" id="signature" name="signature" value="<?php echo (!empty($fra['signature']) ? ('/fra' . $fra['signature']) : '') ?>" />
@@ -297,6 +298,19 @@ foreach ($rasections as $rasection) {
                         <label class="control-label" for="hours_operation"><b>Hours of Operation*</b></label>
                         <textarea class="form-control" id="hours_operation" name="hours_operation" title="Hours of Operation" placeholder="Hours of Operation" required data-bv-notempty-message="The Hours of Operation is required">{{ $fra['hours_operation'] }}</textarea>
                     </div>
+                    @if (63 == $curshop->client_id)
+                    <div class="form-group">
+                        <label class="control-label" for="competence"><b>Competence*</b></label>
+                        <textarea class="form-control" id="competence" name="competence" title="Competence" placeholder="Competence">{{ $fra['competence'] }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label" for="guidance_used"><b>Guidance Used</b></label>
+                        <textarea class="form-control" id="guidance_used" name="guidance_used" title="Guidance Used" placeholder="Guidance Used">{{ $fra['guidance_used'] }}</textarea>
+                    </div>
+                    @else
+                    <input type="hidden" id="competence" name="competence" value="" />
+                    <input type="hidden" id="guidance_used" name="guidance_used" value="" />
+                    @endif
                     <div class="form-group">
                         <label class="control-label" for="survey_date"><b>Survey Date*</b></label>
                         <div id="survey_date_div">
@@ -356,6 +370,14 @@ foreach ($rasections as $rasection) {
 
                         </div>
                     </div>
+                    @if (63 == $curshop->client_id)
+                    <div class="form-group">
+                        <label class="control-label" for="text_after_review_table"><b>Text after Review Table</b></label>
+                        <textarea class="form-control" id="text_after_review_table" name="text_after_review_table" title="Text after Review Table" placeholder="Text after Review Table">{{ $fra['text_after_review_table'] }}</textarea>
+                    </div>
+                    @else
+                    <input type="hidden" id="text_after_review_table" name="text_after_review_table" value="" />
+                    @endif
                 </div>
             </div>
         </div>

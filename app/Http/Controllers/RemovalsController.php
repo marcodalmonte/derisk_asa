@@ -511,7 +511,7 @@ class RemovalsController extends Controller
     public function saveRemovalAreaText(Request $request)
     {
         $area_id = $request->input('area_id');
-        $text = $request->input('text');
+        $text = $this->cleanText($request->input('text'));
         
         $modify_date = date('Y-m-d H:i:s',time());
         

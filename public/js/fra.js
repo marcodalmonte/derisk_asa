@@ -262,6 +262,10 @@ function submitNewFraForm()
         var review_by = jQuery('#review_by').val();
         var review_signature = jQuery('#review_signature').val();
 
+		var text_after_review_table = jQuery('#text_after_review_table').val();
+        var competence = jQuery('#competence').val();
+        var guidance_used = jQuery('#guidance_used').val();
+
         // Fields for the answers
         var curid = "";
         var curname = "";
@@ -310,6 +314,9 @@ function submitNewFraForm()
         dataToPass.review_date = review_date;
         dataToPass.review_by = review_by;
         dataToPass.review_signature = review_signature;
+		dataToPass.text_after_review_table = text_after_review_table;
+        dataToPass.competence = competence;
+        dataToPass.guidance_used = guidance_used;
 
         dataToPass.answers = [];
 
@@ -441,13 +448,16 @@ function printFraPdf()
     // Hidden fields
     var selshop = jQuery('#shop_id').val();
     var revision = jQuery('#revision').val();
+	var client_id = jQuery('#client_id').val();
 
     jQuery.ajax({
         type: "POST",
         url: '/printFraPdf',
         data: {
-            'shop_id': selshop,
-            'revision': revision
+             'shop_id': selshop,
+-            'revision': revision
+             'revision': revision,
+             'client_id': client_id
         },
         async: false,
         dataType: "html",

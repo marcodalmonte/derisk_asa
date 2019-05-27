@@ -47,6 +47,9 @@ class CreateRareportsTable extends Migration
             $table->bigInteger('review_date');
             $table->unsignedInteger('review_by');
             $table->longText('review_signature');
+            $table->longText('text_after_review_table');
+            $table->longText('competence');
+            $table->longText('guidance_used');
             $table->unsignedInteger('completed')->default(0);
             $table->unsignedInteger('email_sent')->default(0);
             $table->timestamps();

@@ -9,7 +9,7 @@ use Auth;
 
 class FraPDF extends \fpdi\FPDI
 {
-    private function printTitleBar($title)
+    protected function printTitleBar($title)
     {
         $stds = $this->defineStandardFont();
         
@@ -36,7 +36,7 @@ class FraPDF extends \fpdi\FPDI
         return $y;
     }
     
-    private function breakText($text,$chars_per_line)
+    protected function breakText($text,$chars_per_line)
     {
         $brokenText = array();
         
@@ -73,7 +73,7 @@ class FraPDF extends \fpdi\FPDI
         return $brokenText;
     }
     
-    private function sumUntil($values, $end, $exclude = -1)
+    protected function sumUntil($values, $end, $exclude = -1)
     {
         if (empty($values)) {
             return 0;
@@ -98,7 +98,7 @@ class FraPDF extends \fpdi\FPDI
         return $sum;
     }
     
-    private function fixChars($string)
+    protected function fixChars($string)
     {
         $mystring = $string;
         
@@ -111,7 +111,7 @@ class FraPDF extends \fpdi\FPDI
         return $mystring;
     }
     
-    function MultiCell($w, $h, $txt, $border=0, $align='J', $fill=false, $maxline=0)
+    public function MultiCell($w, $h, $txt, $border=0, $align='J', $fill=false, $maxline=0)
     {
         // Output text with automatic or explicit line breaks, at most $maxline lines
         $cw = &$this->CurrentFont['cw'];
@@ -254,7 +254,7 @@ class FraPDF extends \fpdi\FPDI
         return '';
     }
     
-    private function printTableSection($index,$section,$questions,$answers)
+    protected function printTableSection($index,$section,$questions,$answers)
     {
         $lower_bound = 190;
         
@@ -505,59 +505,58 @@ class FraPDF extends \fpdi\FPDI
         return $y;
     }
     
-    private function rotatePicture($filename)
+    protected function rotatePicture($filename)
     {
-        $image = new \Imagick($filename); 
-        $image_orientation = $image->getImageOrientation();
-        
-        switch($image_orientation) {
-            case \imagick::ORIENTATION_BOTTOMRIGHT:
-                $image->rotateimage("#000", 180); // rotate 180 degrees
-                break;
+        $image_meta = exif_read_data($filename);
+        $image = imagecreatefromjpeg($filename);
+            
+        if (!empty($image_meta['Orientation'])) {
+            switch ($image_meta['Orientation']) {
+                case 3:
+                    $image = imagerotate($image, 180, 0);
+                    break;
 
-            case \imagick::ORIENTATION_RIGHTTOP:
-                $image->rotateimage("#000", 90); // rotate 90 degrees CW
-                break;
+                case 6:
+                    $image = imagerotate($image, -90, 0);
+                    break;
 
-            case \imagick::ORIENTATION_LEFTBOTTOM:
-                $image->rotateimage("#000", -90); // rotate 90 degrees CCW
-                break;
-            default:
-                break;
+                case 8:
+                    $image = imagerotate($image, 90, 0);
+                    break;
+            }
         }
-
-        // Now that it's auto-rotated, make sure the EXIF data is correct in case the EXIF gets saved with the image!
-        $image->setImageOrientation(\imagick::ORIENTATION_TOPLEFT); 
         
         $new_filename = str_replace('.jpeg','_rotated.jpeg',$filename);
         $new_filename = str_replace('.jpg','_rotated.jpg',$new_filename);
         
-        $image->writeImage($new_filename); 
+        imagejpeg($image, $new_filename);
+        
+        imagedestroy($image);
         
         return $new_filename;
     }
     
-    private $shop_id;
-    private $shop;
-    private $client;
-    private $revision;
-    private $fra;
-    private $sections;
-    private $questions;
-    private $answers;
-    private $revisions;
-    private $remedials;
-    private $prepuser;
-    private $revuser;
-    private $additional;    
+    protected $shop_id;
+    protected $shop;
+    protected $client;
+    protected $revision;
+    protected $fra;
+    protected $sections;
+    protected $questions;
+    protected $answers;
+    protected $revisions;
+    protected $remedials;
+    protected $prepuser;
+    protected $revuser;
+    protected $additional;    
     
     protected $_toc = array();
     protected $_numbering = false;
     protected $_numberingFooter = false;
     protected $_numPageNum = 2;
     
-    private $printHeader;
-    private $printFooter;
+    protected $printHeader;
+    protected $printFooter;
     
     protected $USEFUL_WIDTH = 146;
     protected $PICTURE_WIDTH = 72;
@@ -663,6 +662,7 @@ class FraPDF extends \fpdi\FPDI
         $this->remedials = array();
         
         $fquestions = DB::table('raquestions')
+                ->where('client_id',$this->shop->client_id)
                 ->select('id','question','goal','rasection_id')
                 ->orderBy('id','asc')
                 ->get();
@@ -713,7 +713,7 @@ class FraPDF extends \fpdi\FPDI
         $this->prepuser = array(
             $assuser->name . ' ' . $assuser->surname . "\n" . $assuser->qualification,
             public_path() . '/fra' . $this->fra->signature,
-            date('d/m/Y',$this->fra->issue_date),
+            date('F Y',$this->fra->issue_date),
         );
         
         if ($revseluser !== null) {
@@ -1176,8 +1176,8 @@ class FraPDF extends \fpdi\FPDI
         
         if (!empty($picture) and file_exists($picture) and !is_dir($picture)) {
             //$new_main_picture = $this->rotatePicture($picture);
-            $new_main_picture = $picture;
-            
+	    $new_main_picture = $picture;
+
             $this->Image($new_main_picture,($x + (($this->USEFUL_WIDTH - $this->PICTURE_WIDTH) / 2)),$y + 5,$this->PICTURE_WIDTH,$this->PICTURE_HEIGHT);
             
             //unlink($new_main_picture);
@@ -2569,8 +2569,8 @@ class FraPDF extends \fpdi\FPDI
                     $this->MultiCell($colsw[$k] - 2, $cellh - 2, $record[$k], 0, $align, false);
                 } else if (!empty($record[$k]) and file_exists($record[$k]) and !is_dir($record[$k])) {
                     //$new_picture = $this->rotatePicture($record[$k]);
-                    $new_picture = $record[$k];
-                                       
+                    $new_picture = $record[$k]; 
+		
                     $this->Image($new_picture, $x + $this->sumUntil($colsw,$k) + 0.5, $y + 1, $imgw, $imgh, 'jpg', '', 'C', true);
                     
                     //unlink($new_picture);
@@ -2634,8 +2634,8 @@ class FraPDF extends \fpdi\FPDI
                 $fullpath = public_path() . '/fra' . $curpicture->picture;
                 
                 //$new_picture = $this->rotatePicture($fullpath);
-                $new_picture = $fullpath;
-                
+		$new_picture = $fullpath; 
+
                 $this->Image($new_picture, $x, $y, $picture_w, $picture_h, 'jpg', '', 'C', true);
                 
                 //unlink($new_picture);
@@ -3260,6 +3260,1118 @@ class FraPDF extends \fpdi\FPDI
     }
 }
 
+class PheFraPDF extends FraPDF
+{    
+    public function __construct($shop_id, $revision)
+    {
+        parent::__construct($shop_id,$revision);
+    }
+   
+    public function Header()
+    {        
+        if ($this->page == 1) {
+	    $picture = public_path() . '/img/coverpage-fra.jpg';
+
+	    $imgw = 210;
+	    $imgh = 297;
+
+            $this->Image($picture, 0, 0, $imgw, $imgh);
+
+            return;
+        }   
+        
+        if (!$this->printHeader) {
+            return;
+        }
+        
+        $stds = $this->defineStandardFont();
+        $elems = $this->getElements();
+        
+        $x = 32;
+        $y = 8;
+        
+        $this->SetFont($stds['font-family'],'',$stds['font-mini-small']);
+        $this->setTextColor(0,0,0);
+        
+        $rev = (($this->revision < 10) ? '0' : '') . $this->revision;
+        
+        $this->SetXY($x, $y);        
+        $this->Cell(162,10,'Project Number ' . $this->client->derisk_number . ' ' . $rev,0,1,'L');
+        
+        $y += 3;
+        
+        $full = $elems['shop']->address1;
+        $full .= ' ' . $elems['shop']->address2;
+        $full .= ' ' . $elems['shop']->town;
+        $full .= ' ' . $elems['shop']->postcode;
+        
+        $this->SetXY($x, $y);
+        $this->Cell(162,10,$this->client->companyname . ' ' . $full,0,1,'L');
+        $y += 7;
+        
+        $line_width = $this->USEFUL_WIDTH;
+        
+        if ($this->CurOrientation == 'L') {
+            $line_width = 233;
+        }
+        
+        $this->Line($x,$y,$x + $line_width,$y);
+    }
+    
+    public function printExecutiveSummary()
+    {
+        $this->addPage('P');
+        
+        $this->TOC_Entry('Premises Details and Executive Summary', 0);
+        
+        $stds = $this->defineStandardFont();
+        
+        $x = 32;
+        
+        $y = $this->printTitleBar('Premises Details and Executive Summary');
+        
+        $this->SetTextColor(0,0,0);
+        
+        $picture = public_path() . '/fra' . $this->fra->main_picture;        
+        
+        if (!empty($picture) and file_exists($picture) and !is_dir($picture)) {
+            //$new_main_picture = $this->rotatePicture($picture);
+	    $new_main_picture = $picture;
+
+            $this->Image($new_main_picture,($x + (($this->USEFUL_WIDTH - $this->PICTURE_WIDTH) / 2)),$y + 5,$this->PICTURE_WIDTH,$this->PICTURE_HEIGHT);
+            
+            //unlink($new_main_picture);
+        
+            $y += 64;
+        } else {
+            $y += 10;
+        }
+        
+        $cellw_one = 50;
+        $cellw_two = 96;
+        
+        $width = $cellw_one + $cellw_two;
+        
+        $low_limit = 280;
+        
+        $recth = 7;
+        $cellh = 5;
+        
+        $nbs = array(
+            0   =>  array($recth,$cellh,1),
+            1   =>  array($recth,$cellh,1),
+            2   =>  array($recth,$cellh,1),
+            3   =>  array($recth,$cellh,1),
+            4   =>  array($recth,$cellh,1),
+            5   =>  array($recth,$cellh,1),
+            6   =>  array($recth,$cellh,1),
+            7   =>  array($recth,$cellh,1),
+            8   =>  array($recth,$cellh,1),
+            9   =>  array($recth,$cellh,1),
+            10  =>  array($recth,$cellh,1),
+            11  =>  array($recth,$cellh,1),
+            12  =>  array($recth,$cellh,1),
+            13  =>  array($recth,$cellh,1),
+            14  =>  array($recth,$cellh,1),
+        );
+        
+        $address = $this->client->companyname;
+        $address .= "\n" . $this->shop->address1;
+        $address .= "\n" . $this->shop->address2;
+        $address .= "\n" . $this->shop->town . ' ' . $this->shop->postcode;
+        
+        $fields = array(
+            0   =>  array('Address & Building Details',$address),
+            1   =>  array('Responsible Person',$this->fra->responsible_person),
+            2   =>  array('Assessor',$this->fra->assessor),
+            3   =>  array('Person to meet on site',$this->fra->person_to_meet),
+            4   =>  array('Use(s) of Building',$this->fra->use_of_building),
+            5   =>  array('Number of Floors',$this->fra->number_of_floors),
+            6   =>  array('Construction type',$this->fra->construction_type),
+            7   =>  array('Approx. Maximum Number of Occupants',$this->fra->max_number_occupants),
+            8   =>  array('Approx. Number of Employees at any Time',$this->fra->number_employees),
+            9   =>  array('Disabled Occupants',$this->fra->disabled_occupants),
+            10  =>  array('Occupants in Remote Areas and Lone Workers',$this->fra->remote_occupants),
+            11  =>  array('Current Hours of Operation',$this->fra->hours_operation),
+            12  =>  array('Date of Previous Fire Risk Assessment',((empty($this->fra->old_issue_date) or ('none' == $this->fra->old_issue_date)) ? 'none' : date('d F Y',strtotime($this->fra->old_issue_date)))),
+            13  =>  array('Recommended review date',date('d F Y',$this->fra->next_date_recommended)),
+        );
+        
+        foreach ($fields as $i => $field) {
+            // Calculate the height of the row
+            $nb_one = max(0,$this->nbLines($cellw_one, $field[0]));
+            $nb_two = max(0,$this->nbLines($cellw_two, $field[1]));
+            $nb = max($nb_one,$nb_two);
+
+            $recth = 2 + ($cellh * $nb);
+            
+            $nbs[$i] = array($recth,$cellh,$nb);
+        }
+        
+        foreach ($fields as $i => $field) {
+            $string_to_print = $field[1];
+
+            $currecth = 0;
+
+            while (!empty($string_to_print)) {
+                // tot lines from the current position to the end of the page
+                $remaining = ($low_limit - $y - 5) / $cellh;
+                
+                if ($remaining < 2) {
+                    $this->AddPage();
+
+                    $y = 27;
+                }
+                
+                $maxline = min($remaining,$nbs[$i][2]);
+
+                $this->SetFillColor(217,217,217);
+                $this->SetDrawColor(0,0,0);
+
+                $currecth = 1 + min($nbs[$i][0],$low_limit - $y - 5);
+
+                $this->SetFont($stds['font-family'],'B',$stds['font-size']);
+                $this->Rect($x, $y, $cellw_one, $currecth, 'FD');
+                $this->SetXY(1 + $x, $y + 1);
+                $this->MultiCell($cellw_one - 2, $nbs[$i][1], $field[0], 0, 'L', true, $maxline); 
+
+                $this->SetFillColor(255,255,255);
+                
+                $this->SetFont($stds['font-family'],'',$stds['font-size']);
+                $this->Rect($x + $cellw_one, $y, 2 + $cellw_two, $currecth, 'FD');
+                $this->SetXY(1 + $x + $cellw_one, $y + 1);
+                $string_to_print = $this->MultiCell($cellw_two, $nbs[$i][1], $string_to_print, 0, 'J', true, $maxline);
+
+                $nb_one = max(0,$this->nbLines($cellw_one, $field[0]));
+                $nb_two = max(0,$this->nbLines($cellw_two, $string_to_print));
+                $nb = max($nb_one,$nb_two);
+
+                $nbs[$i][0] = 2 + ($cellh * $nb);
+                $nbs[$i][2] = $nb;
+
+                if (!empty($string_to_print)) {
+                    $this->AddPage();
+
+                    $y = 21;
+                }
+            }
+
+            $y += $currecth;
+        }
+        
+        $this->AddPage();             
+
+        $y = 21;
+        
+        $sentence = 'The Fire Risk Assessment should be reviewed by a competent person by the date indicated above or at such ';
+        $sentence .= 'earlier time if there is reason to suspect that it is no longer valid or if there has been a significant change in ';
+        $sentence .= 'the matters to which it relates; a review is also required following a fire.';
+        
+        while (!empty($sentence)) {
+            $this->SetXY($x, $y);
+            
+            $fullnb = max(0,$this->nbLines($width, $sentence));
+            $currecth = 1 + min($fullnb,$low_limit - $y);
+            
+            $remaining = ($low_limit - $y - 5) / (1 + $cellh);
+            $maxline = min($remaining,$fullnb);
+            
+            $sentence = $this->MultiCell($width, $cellh, $sentence, 0, 'J', true, $maxline);
+        }
+        
+        $y += 25;
+        
+        $this->SetXY($x,$y);
+        
+        $cellh = 4.9;
+        
+        $nbs = array(
+            0   =>  array($recth,$cellh,1),
+            1   =>  array($recth,$cellh,1),
+            2   =>  array($recth,$cellh,1),
+        );
+        
+        $fields = array(
+            0   =>  array('Executive Summary',$this->fra->executive_summary),
+            1   =>  array('Fire Loss Experience',$this->fra->fire_loss_experience),
+            2   =>  array('Relevant Fire Safety Legislation',$this->fra->relevant_fire_safety_legislation),
+            3   =>  array('Guidance Used in Preparation of this Fire Risk Assessment Report',$this->fra->guidance_used),
+            4   =>  array('Competence',$this->fra->competence),   
+        );
+        
+        foreach ($fields as $i => $field) {
+            // Calculate the height of the row
+            $nb_one = max(0,$this->nbLines($cellw_one, $field[0]));
+            $nb_two = max(0,$this->nbLines($cellw_two, $field[1]));
+            $nb = max($nb_one,$nb_two);
+
+            $recth = 2 + ($cellh * $nb);
+            
+            $nbs[$i] = array($recth,$cellh,$nb);
+        }
+        
+        foreach ($fields as $i => $field) {
+            $string_to_print = $field[1];
+
+            $currecth = 0;
+
+            while (!empty($string_to_print)) {
+                $remaining = ($low_limit - $y - 5) / $cellh;
+                
+                if ($remaining < 2) {
+                    $this->AddPage();
+
+                    $y = 27;
+                }
+                
+                $maxline = min($remaining,$nbs[$i][2]);
+
+                $this->SetFillColor(217,217,217);
+                $this->SetDrawColor(0,0,0);
+
+                $currecth = 1 + min($nbs[$i][0],$low_limit - $y - 5);
+
+                $this->SetFont($stds['font-family'],'B',$stds['font-size']);
+                $this->Rect($x, $y, $cellw_one, $currecth, 'FD');
+                $this->SetXY(1 + $x, $y + 1);
+                $this->MultiCell($cellw_one - 2, $nbs[$i][1], $field[0], 0, 'L', true, $maxline);                        
+
+                $this->SetFillColor(255,255,255);
+                
+                $this->SetFont($stds['font-family'],'',$stds['font-size']);
+                $this->Rect($x + $cellw_one, $y, 2 + $cellw_two, $currecth, 'FD');
+                $this->SetXY(1 + $x + $cellw_one, $y + 1);
+                $string_to_print = $this->MultiCell($cellw_two, $nbs[$i][1], $string_to_print, 0, 'J', true, $maxline);
+
+                $nb_one = max(0,$this->nbLines($cellw_one, $field[0]));
+                $nb_two = max(0,$this->nbLines($cellw_two, $string_to_print));
+                $nb = max($nb_one,$nb_two);
+
+                $nbs[$i][0] = 2 + ($cellh * $nb);
+                $nbs[$i][2] = $nb;
+
+                if (!empty($string_to_print)) {
+                    $this->AddPage();
+
+                    $y = 27;
+                }
+            }
+
+            $y += $currecth;
+        }
+        
+        $y += 5;
+        
+        return $y;
+    }
+
+    public function printQuestionsAnswers()
+    {
+        $this->AddPage('L');
+        
+        $this->TOC_Entry('Premises Survey', 0);
+        
+        $stds = $this->defineStandardFont();
+        
+        $y = $this->printTitleBar('Premises Survey');
+        
+        $this->SetFont($stds['font-family'],'B',$stds['font-size']);
+        $this->SetTextColor(0,0,0);
+        
+        $this->SetXY(136,8 + $y);
+        
+        foreach ($this->sections as $index => $sect) {
+            if ($sect->id == 1) {
+                $this->Cell(43,7,'FIRE RISKS AND HAZARDS');
+            } else if ($sect->id == 16) {
+                $this->AddPage('L');
+                $y = 21;
+        
+                $this->SetFont($stds['font-family'],'B',$stds['font-size']);
+                $this->SetTextColor(0,0,0);
+
+                $this->SetXY(136,$y);
+                
+                $this->Cell(43,7,'MANAGEMENT OF FIRE SAFETY');
+            }
+            
+            $y = $this->printTableSection($index+1,$sect,$this->questions[$sect->id],$this->answers);
+        }
+    }
+    
+    public function printRemedialActions()
+    {
+        $y = $this->GetY();
+        
+        if (empty($this->remedials)) {
+            return $y;
+        }
+        
+        $this->AddPage('L');
+        
+        $stds = $this->defineStandardFont();
+        
+        $lower_bound = 190;
+        
+        $x = 32;
+        $y = 21;
+        
+        // Calculate the number of rows for the headers
+        $nb_headers = 0;
+        $nb = array();
+
+        $colsw = array(
+            31.15,
+            50.0,
+            15.2,
+            31.35,
+            18.85,
+            31.35,
+            18.85,
+            36.6,
+        );
+
+        $headers = array(
+            "Report Ref & Hazard Area",
+            "Recommended Remedial Action",
+            "Priority Code",
+            "Action by Whom",            
+            "Date for completion",
+            "Actioned by",
+            "Date of completion",
+            "Photo",
+        );
+        
+        $cellh = 5;
+        $hfact = 1.0;
+        $imgw = 35;
+        $imgh = 26.25;
+        
+        $this->SetFont($stds['font-family'],'B',$stds['font-table']);
+
+        foreach ($headers as $i => $header) {
+            $nb_headers = max($nb_headers,$this->nbLines($colsw[$i], $header));
+        }
+        
+        $rect_headerh = ($hfact * $cellh * $nb_headers) - 2;
+        
+        $this->SetFont($stds['font-family'],'',$stds['font-table']);
+        
+        $cells = array();
+        
+        $k = 0;
+        foreach ($this->remedials as $quest_id => $remedial) {
+            $record = array(
+                $remedial->topic,
+                $remedial->recommendation,
+                $remedial->priority_code,
+                $remedial->action_by_whom,
+                '',
+                $remedial->actioned_by,
+                '',
+                (empty($remedial->picture) ? '' : public_path() . '/fra' . $remedial->picture),
+            );
+            
+            if (!empty($remedial->date_for_completion) and ('0000-00-00' != $remedial->date_for_completion)) {
+                $record[4] = date('d/m/Y',strtotime($remedial->date_for_completion));
+            }
+            
+            if (!empty($remedial->date_of_completion) and ('0000-00-00' != $remedial->date_of_completion)) {
+                $record[6] = date('d/m/Y',strtotime($remedial->date_of_completion));
+            }
+            
+            $cells[$k] = $record;
+
+            $nb[$k] = 0;
+
+            foreach ($record as $j => $cell) {
+                $cell_lines = $this->nbLines($colsw[$j], $cell);
+                $nb[$k] = max($nb[$k],$cell_lines);
+            }
+            
+            $k++;
+        }
+        
+        $first_line_rect = 0;
+            
+        foreach ($cells[0] as $i => $elem) {
+            $first_line_rect = max($first_line_rect,$this->nbLines($colsw[$i] - 2, $elem));
+        }
+        
+        $rect_elem = ($hfact * ($cellh - 1) * $first_line_rect);
+        $rect_elem = max($imgh + 2, $rect_elem);
+        
+        if ($y >= $lower_bound - $rect_headerh - 2 - $cellh - $rect_elem) {
+            $this->AddPage('L');
+                
+            $y = 21;
+        }
+        
+        $this->SetXY($x,$y);
+        
+        $this->SetFont($stds['font-family'],'B',$stds['font-table']);
+        $this->SetFillColor(217,217,217);
+        $this->SetDrawColor(0,0,0);
+        
+        for ($k = 0; $k < count($headers); $k++) {
+            $align = 'L';
+            if (in_array($k,array(2,3,4,5,6,))) {
+                $align = 'C';
+            }
+            
+            if ($k == 0) {
+                $this->Rect($x, $y, $colsw[0], $rect_headerh, 'FD');
+                $this->SetXY($x + 1, $y + 1);                    
+            } else {
+                $this->Rect($x + $this->sumUntil($colsw,$k), $y, $colsw[$k], $rect_headerh, 'FD');
+                $this->SetXY($x + $this->sumUntil($colsw,$k) + 1, $y + 1);
+            }
+
+            $this->MultiCell($colsw[$k] - 2, $cellh - 2, $headers[$k], 0, $align, false);
+        }
+        
+        $this->SetFillColor(255,255,255);
+        $this->SetFont($stds['font-family'],'',$stds['font-table']);
+        
+        $y += $rect_headerh;
+        
+        foreach ($cells as $index => $record) {            
+            $nb_record = 0;
+            
+            foreach ($record as $i => $elem) {
+                $nb_record = max($nb_record,$this->nbLines($colsw[$i] - 2, $elem));
+            }
+
+            $rect_elem = ($hfact * ($cellh - 1) * $nb_record);
+            $rect_elem = max($imgh + 2, $rect_elem);
+            
+            if ($nb_record == 1) {
+                $rect_elem = ($hfact * $cellh * $nb_record);
+                $rect_elem = max($imgh + 2, $rect_elem);
+            }
+            
+            if ($rect_elem > $lower_bound - $y) {
+                $this->AddPage('L');
+                
+                $y = 21;
+                
+                $this->SetFont($stds['font-family'],'B',$stds['font-table']);
+                $this->SetFillColor(217,217,217);
+                $this->SetDrawColor(0,0,0);
+
+                for ($k = 0; $k < count($headers); $k++) {
+                    $align = 'L';
+                    if (in_array($k,array(2,3,4,5,6,7,))) {
+                        $align = 'C';
+                    }
+
+                    if ($k == 0) {
+                        $this->Rect($x, $y, $colsw[0], $rect_headerh, 'FD');
+                        $this->SetXY($x + 1, $y + 1);                    
+                    } else {
+                        $this->Rect($x + $this->sumUntil($colsw,$k), $y, $colsw[$k], $rect_headerh, 'FD');
+                        $this->SetXY($x + $this->sumUntil($colsw,$k) + 1, $y + 1);
+                    }
+
+                    $this->MultiCell($colsw[$k] - 2, $cellh - 2, $headers[$k], 0, $align, false);
+                }
+
+                $this->SetFillColor(255,255,255);
+                $this->SetFont($stds['font-family'],'',$stds['font-table']);
+
+                $y += $rect_headerh;
+            }
+            
+            for ($k = 0; $k < count($record); $k++) {
+                if ($k == 0) {
+                    $this->SetFont($stds['font-family'],'B', $stds['font-table']);
+                } else {
+                    $this->SetFont($stds['font-family'],'', $stds['font-table']);
+                }
+                
+                $this->SetTextColor(0,0,0);
+                
+                $align = 'L';
+                $this->SetFillColor(255,255,255);
+                
+                if ($k == 0) {
+                    $this->SetFillColor(217,217,217);
+                    $align = 'L';
+                } else if ($k == 2) {
+                    $align = 'C';
+                    
+                    switch ($record[2]) {
+                        case '1':
+                            $this->SetFillColor(255,0,0);
+                            break;
+                        case '2':
+                            $this->SetFillColor(255,255,0);
+                            break;
+                        case '3':
+                            $this->SetFillColor(146,208,80);
+                            break;
+                        case '4':
+                            $this->SetFillColor(0,176,240);
+                            break;
+                        case '5':
+                            $this->SetFillColor(204,192,217);
+                            break;
+                        default:
+                            break;
+                    }
+                } else if (in_array($k,array(3,4,5,6,))) {
+                    $align = 'C';
+                }
+                
+                if ($k == 0) {
+                    $this->Rect($x, $y, $colsw[0], $rect_elem, 'FD');
+                    $this->SetXY($x + 1, $y + 1);                    
+                } else {
+                    $this->Rect($x + $this->sumUntil($colsw,$k), $y, $colsw[$k], $rect_elem, 'FD');
+                    $this->SetXY($x + $this->sumUntil($colsw,$k) + 1, $y + 1);
+                }
+                
+                if ($k < 7) {
+                    $this->MultiCell($colsw[$k] - 2, $cellh - 2, $record[$k], 0, $align, false);
+                } else if (!empty($record[$k]) and file_exists($record[$k]) and !is_dir($record[$k])) {
+                    //$new_picture = $this->rotatePicture($record[$k]);
+                    $new_picture = $record[$k]; 
+		
+                    $this->Image($new_picture, $x + $this->sumUntil($colsw,$k) + 0.5, $y + 1, $imgw, $imgh, 'jpg', '', 'C', true);
+                    
+                    //unlink($new_picture);
+                }
+            }
+            
+            $y += $rect_elem;
+        }
+        
+        $this->SetXY($x,$y);
+        
+        return $y;
+    }
+    
+    public function printAdditionalPictures()
+    {
+        if (empty($this->additional)) {
+            return;
+        }
+        
+        $this->AddPage('P');
+        
+        $this->TOC_Entry('Supporting Photographs', 0);
+        
+        $stds = $this->defineStandardFont();
+        
+        $y = $this->GetY();
+        
+        $lower_bound = 280;
+        
+        $x = 32;
+        $y = 25.5;
+        
+        // Calculate the number of rows for the headers
+        $nb_headers = 0;
+        $nb = array();
+
+        $colsw = array(
+            73,
+            73,
+        );
+
+        $headers = array(
+            "Photograph",
+            "Report Ref and Comment",
+        );
+        
+        $cellh = 5;
+        $hfact = 1.0;
+        $imgw = 35;
+        $imgh = 26.25;
+        
+        $this->SetFont($stds['font-family'],'B',$stds['font-table']);
+
+        foreach ($headers as $i => $header) {
+            $nb_headers = max($nb_headers,$this->nbLines($colsw[$i], $header));
+        }
+        
+        $rect_headerh = ($hfact * $cellh * $nb_headers) - 2;
+        
+        $this->SetFont($stds['font-family'],'',$stds['font-table']);
+        
+        $cells = array();
+        $k = 0;
+        
+        foreach ($this->additional as $section => $pictures) {            
+            $sentence = $section . '. ' . $pictures[0]->section_name;
+            
+            foreach ($pictures as $k => $curpicture) {
+                $fullpath = public_path() . '/fra' . $curpicture->picture;
+                
+                $cells[$n] = array(
+                    (empty($curpicture->picture) ? '' : $fullpath),
+                    $sentence . "\n" . $curpicture->caption,
+                );
+                
+                $nb[$n] = 0;
+                
+                $cell_lines = $this->nbLines($colsw[1], $cells[$k][1]);                
+                $nb[$n] = max($imgh,$cell_lines * $cellh);
+                
+                $n++;
+            }
+        }
+        
+        $this->SetFont($stds['font-family'],'B',$stds['font-table']);
+        $this->SetFillColor(217,217,217);
+        $this->SetDrawColor(0,0,0);
+        
+        for ($k = 0; $k < count($headers); $k++) {
+            $align = 'C';
+            
+            if ($k == 0) {
+                $this->Rect($x, $y, $colsw[0], $rect_headerh, 'FD');
+                $this->SetXY($x + 1, $y + 1);                    
+            } else {
+                $this->Rect($x + $this->sumUntil($colsw,$k), $y, $colsw[$k], $rect_headerh, 'FD');
+                $this->SetXY($x + $this->sumUntil($colsw,$k) + 1, $y + 1);
+            }
+
+            $this->MultiCell($colsw[$k] - 2, $cellh - 2, $headers[$k], 0, $align, false);
+        }
+        
+        $this->SetFillColor(255,255,255);
+        $this->SetFont($stds['font-family'],'',$stds['font-table']);
+        
+        $y += $rect_headerh;
+        
+        foreach ($cells as $cellid => $record) {
+            if ($nb[$cellid] > $lower_bound - $y) {
+                $this->AddPage('P');
+            }
+            
+            for ($k = 0; $k < count($record); $k++) {                
+                $this->SetFont($stds['font-family'],'', $stds['font-table']);
+                $this->SetTextColor(0,0,0);
+                $this->SetFillColor(255,255,255);
+
+                if ($k == 0) {
+                    $align = 'C';
+                    $this->Rect($x, $y, $colsw[0], $nb[$cellid], 'FD');
+                    $this->SetXY($x + 1, $y + 1);    
+                    $this->Image($record[$k], $x + ($k * $colsw[$k]) + (($colsw[$k] - $imgw) / 2), $y + (($nb[$cellid] - $imgh) / 2), $imgw, $imgh);
+                } else {
+                    $align = 'L';
+                    $this->Rect($x + $this->sumUntil($colsw,$k), $y, $colsw[$k], $nb[$cellid], 'FD');
+                    $this->SetXY($x + $this->sumUntil($colsw,$k) + 1, $y + 1);
+                    $this->MultiCell($colsw[$k] - 2, $cellh - 2, $record[$k], 0, $align, false);
+                }
+            }
+
+            $y += $nb[$cellid];
+        }
+        
+        return $y;
+    }
+
+    public function printContentsPage()
+    {
+        $this->printHeader = true;
+        
+        $this->AddPage('P');
+        
+        $stds = $this->defineStandardFont();
+        
+        $y = $this->printTitleBar('Contents');
+
+	$left_limit = 32;
+        $right_limit = 0;
+        $y += 6;
+        
+        $this->SetXY($left_limit,$y);
+        
+        /**** TABLE OF CONTENTS ****/
+        
+        $str = 'Contents';
+        $this->SetFont($stds['font-family'],'',$stds['font-mini']);
+        $this->SetTextColor(0,0,0);
+        $strsize = $this->GetStringWidth($str);
+        $this->Cell($strsize+2,$this->FontSize+2,$str,0);
+        
+        // Filling dots
+        $p = '2';
+        $this->SetFont($stds['font-family'],'',$stds['font-mini']);
+        $this->SetTextColor(0,0,0);
+        $PageCellSize = $this->GetStringWidth($p) + 2;
+        $w = $this->w - $left_limit - $right_limit - $PageCellSize - ($strsize + 2);
+        $nb = ($w - 4) / $this->GetStringWidth('.');
+        $dots = str_repeat('.',$nb - $left_limit);
+        $this->Cell($w - $left_limit,$this->FontSize+2,$dots,0,0,'R');
+
+        // Page number
+        $this->Cell($PageCellSize,$this->FontSize+2,$p,0,1,'R');
+
+        foreach ($this->_toc as $t) {
+	    $this->SetX($left_limit);
+            // Offset
+            $level = $t['l'];
+            if ($level > 0) {
+                $this->Cell($level * 8);
+            }
+
+            $str = $t['t'];
+            $this->SetFont($stds['font-family'],'',$stds['font-mini']);
+            $this->SetTextColor(0,0,0);
+            $strsize = $this->GetStringWidth($str);
+            $this->Cell($strsize+2,$this->FontSize+2,$str,0);
+
+            // Filling dots
+            $this->SetFont($stds['font-family'],'',$stds['font-mini']);
+            $this->SetTextColor(0,0,0);
+            $PageCellSize = $this->GetStringWidth($t['p']) + 2;
+            $w = $this->w - $left_limit - $right_limit - $PageCellSize - ($level * 8) - ($strsize + 2);
+	    $nb = ($w - 4) / $this->GetStringWidth('.');
+            $dots = str_repeat('.',$nb - $left_limit);
+            $this->Cell($w - $left_limit,$this->FontSize+2,$dots,0,0,'R');
+
+            // Page number
+            $this->Cell($PageCellSize,$this->FontSize+2,$t['p'] - 1,0,1,'R');
+        }
+        
+        /**** REVISIONS TABLE ****/
+        
+        $x = $left_limit;
+        $y = 4 + $this->GetY();
+        
+        $lower_bound = 260;
+        
+        // Calculate the number of rows for the headers
+        $nb_headers = 0;
+        $nb = array();
+
+        $colsw = array(
+            48.66,
+            48.66,
+            48.66,
+        );
+
+        $headers = array(
+            "Date",
+            "Revision No.",
+            "Comments",
+        );
+        
+        $cellh = 7;
+        $hfact = 1.1;
+        
+        $this->SetFont($stds['font-family'],'B',$stds['font-mini']);
+
+        foreach ($headers as $i => $header) {
+            $nb_headers = max($nb_headers,$this->nbLines($colsw[$i], $header));
+        }
+        
+        $rect_headerh = ($hfact * $cellh * $nb_headers);
+        
+        $this->SetFont($stds['font-family'],'',$stds['font-mini']);
+        
+        $cells = array();
+        
+        $k = 0;
+        foreach ($this->revisions as $currev) {
+            $record = array(
+                empty($currev->issue_date) ? date('F Y',strtotime($currev->created_at)) : date('F Y',$currev->issue_date),
+                ($currev->revision < 10) ? ('0' . $currev->revision) : $currev->revision,
+                $currev->comments,
+            );
+            
+            $cells[$k] = $record;
+
+            $nb[$k] = 0;
+
+            foreach ($record as $j => $cell) {
+                $cell_lines = $this->nbLines($colsw[$j], $cell);
+                $nb[$k] = max($nb[$k],$cell_lines);
+            }
+            
+            $k++;
+        }
+        
+        $first_line_rect = 0;
+            
+        foreach ($cells[0] as $i => $elem) {
+            $first_line_rect = max($first_line_rect,$this->nbLines($colsw[$i] - 2, $elem));
+        }
+        
+        $rect_elem = ($hfact * ($cellh - 1) * $first_line_rect);
+        
+        if ($y >= $lower_bound - $rect_headerh - 2 - $cellh - $rect_elem) {
+            $this->AddPage('P');
+                
+            $y = 21;
+        }
+        
+        $this->SetXY($x,$y);
+        
+        $this->SetFont($stds['font-family'],'B',$stds['font-mini']);
+        $this->SetFillColor(217,217,217);
+        $this->SetDrawColor(0,0,0);
+        
+        for ($k = 0; $k < count($headers); $k++) {
+            $align = 'C';
+            
+            if ($k == 0) {
+                $this->Rect($x, $y, $colsw[0], $rect_headerh, 'FD');
+                $this->SetXY($x + 1, $y + 0.25);                    
+            } else {
+                $this->Rect($x + $this->sumUntil($colsw,$k), $y, $colsw[$k], $rect_headerh, 'FD');
+                $this->SetXY($x + $this->sumUntil($colsw,$k) + 1, $y + 0.25);
+            }
+
+            $this->MultiCell($colsw[$k] - 2, $cellh, $headers[$k], 0, $align, false);
+        }
+        
+        $this->SetFillColor(255,255,255);
+        $this->SetFont($stds['font-family'],'',$stds['font-mini']);
+        
+        $y += $rect_headerh;
+        
+        foreach ($cells as $index => $record) {            
+            $nb_record = 0;
+            
+            foreach ($record as $i => $elem) {
+                $nb_record = max($nb_record,$this->nbLines($colsw[$i] - 2, $elem));
+            }
+
+            $rect_elem = ($hfact * ($cellh - 1) * $nb_record);
+            
+            if ($nb_record == 1) {
+                $rect_elem = ($hfact * $cellh * $nb_record);
+            }
+            
+            if ($rect_elem > $lower_bound - $y) {
+                $this->AddPage('P');
+                
+                $y = 21;
+                
+                $this->SetFont($stds['font-family'],'B',$stds['font-mini']);
+                $this->SetFillColor(217,217,217);
+                $this->SetDrawColor(0,0,0);
+
+                for ($k = 0; $k < count($headers); $k++) {
+                    $align = 'C';
+
+                    if ($k == 0) {
+                        $this->Rect($x, $y, $colsw[0], $rect_headerh, 'FD');
+                        $this->SetXY($x + 1, $y + 1);                    
+                    } else {
+                        $this->Rect($x + $this->sumUntil($colsw,$k), $y, $colsw[$k], $rect_headerh, 'FD');
+                        $this->SetXY($x + $this->sumUntil($colsw,$k) + 1, $y + 1);
+                    }
+
+                    $this->MultiCell($colsw[$k] - 2, $cellh, $headers[$k], 0, $align, false);
+                }
+
+                $this->SetFillColor(255,255,255);
+                $this->SetFont($stds['font-family'],'',$stds['font-mini']);
+
+                $y += $rect_headerh;
+            }
+            
+            for ($k = 0; $k < count($record); $k++) {
+                $this->SetFont($stds['font-family'],'', $stds['font-mini']);
+                
+                $this->SetTextColor(0,0,0);
+                $this->SetFillColor(255,255,255);
+                
+                $align = 'C';
+                
+                if ($k == 0) {
+                    $this->Rect($x, $y, $colsw[0], $rect_elem, 'FD');
+                    $this->SetXY($x + ($k * $colsw[0]) + 1,$y + ($rect_elem / 2) - 3);
+                } else if ($k == 1) {
+                    $this->Rect($x + $this->sumUntil($colsw,$k), $y, $colsw[1], $rect_elem, 'FD');
+                    $this->SetXY($x + $this->sumUntil($colsw,$k) + 1,$y + ($rect_elem / 2) - 3);
+                } else {
+                    $this->Rect($x + $this->sumUntil($colsw,$k), $y, $colsw[$k], $rect_elem, 'FD');
+                    $this->SetXY($x + $this->sumUntil($colsw,$k) + 1, $y + 1);
+                }
+                
+                $this->MultiCell($colsw[$k] - 2, $cellh - 2, $record[$k], 0, $align, false);
+            }
+            
+            $y += $rect_elem;
+        }
+        
+        $y += 3;
+        
+        $this->SetXY($x,$y);
+        
+        /**** SIGNATURE TABLE ****/
+        
+        $headers = array(
+            'Document Prepared by',
+            'Signed',
+            'Dated',
+        );
+        
+        $this->SetFont($stds['font-family'],'B',$stds['font-mini']);
+        $this->SetFillColor(217,217,217);
+        $this->SetDrawColor(0,0,0);
+        
+        for ($k = 0; $k < count($headers); $k++) {
+            $align = 'C';
+            $rect_width = 48.66;
+            $rect_height = 9;
+            
+            $this->Rect($x + ($k * $rect_width), $y, $rect_width, $rect_height, 'FD');
+            $this->SetXY($x + ($k * $rect_width) + 1, $y + 1); 
+            $this->MultiCell($rect_width - 2, $cellh, $headers[$k], 0, $align, false);
+        }
+        
+        $y += $rect_height;
+        
+        $this->SetXY($x,$y);
+        
+        $this->SetFont($stds['font-family'],'',$stds['font-mini']);
+        $this->SetFillColor(255,255,255);
+        $this->SetDrawColor(0,0,0);
+        
+        $imgw = 30;
+	$imgh = 22.50;
+        
+        $rect_width = 48.66;
+        $rect_height = 26.25;
+        
+        for ($k = 0; $k < count($this->prepuser); $k++) {
+            $align = 'C';
+            
+            $this->Rect($x + ($k * $rect_width), $y, $rect_width, $rect_height, 'FD');
+            $this->SetXY($x + ($k * $rect_width) + 1, $y + 1); 
+            
+            if ($k == 0) {
+                $this->SetXY($x + ($k * $rect_width) + 1,$y + ($rect_height / 2) - 7);
+                $this->MultiCell($rect_width - 2, $cellh, $this->prepuser[$k], 0, $align, false);
+            } else if ($k == 2) {
+                $this->SetXY($x + ($k * $rect_width) + 1,$y + ($rect_height / 2) - 5);
+                $this->MultiCell($rect_width - 2, $cellh, $this->prepuser[$k], 0, $align, false);
+            } else if (!empty($this->prepuser[$k]) and file_exists($this->prepuser[$k]) and !is_dir($this->prepuser[$k])) {
+                $this->Image($this->prepuser[$k], $x + ($k * $rect_width) + (($rect_width - $imgw) / 2), $y + (($rect_height - $imgh) / 2), $imgw, $imgh);
+            }
+        }
+        
+        $y = 22 + $this->GetY();
+        
+        /**** REVIEW TABLE ****/
+        
+        $headers = array(
+            'Document Review by',
+            'Signed',
+            'Dated',
+        );
+        
+        $content = array(
+            $this->revuser,
+            (empty($this->fra->review_signature) ? '' : (public_path() . '/fra' . $this->fra->review_signature)),
+            date('F Y',$this->fra->review_date),
+        );
+        
+        $this->SetFont($stds['font-family'],'B',$stds['font-mini']);
+        $this->SetFillColor(217,217,217);
+        $this->SetDrawColor(0,0,0);
+        
+        for ($k = 0; $k < count($headers); $k++) {
+            $align = 'C';
+            $rect_width = 48.66;
+            $rect_height = 9;
+            
+            $this->Rect($x + ($k * $rect_width), $y, $rect_width, $rect_height, 'FD');
+            $this->SetXY($x + ($k * $rect_width) + 1, $y + 1); 
+            $this->MultiCell($rect_width - 2, $cellh, $headers[$k], 0, $align, false);
+        }
+        
+        $y += $rect_height;
+        
+        $this->SetXY($x,$y);
+        
+        $this->SetFont($stds['font-family'],'',$stds['font-mini']);
+        $this->SetFillColor(255,255,255);
+        $this->SetDrawColor(0,0,0);
+        
+	$imgw = 30;
+	$imgh = 22.50; 
+
+        $rect_width = 48.66;
+        $rect_height = 26.25; 
+
+        for ($k = 0; $k < count($content); $k++) {
+            $align = 'C';
+            
+            $this->Rect($x + ($k * $rect_width), $y, $rect_width, $rect_height, 'FD');
+            $this->SetXY($x + ($k * $rect_width) + 1, $y + 1);
+            
+            if ($k == 0) {
+                $this->SetXY($x + ($k * $rect_width) + 1,$y + ($rect_height / 2) - 7);
+                $this->MultiCell($rect_width - 2, $cellh, $content[$k], 0, $align, false);
+            } else if ($k == 2) {
+                $this->SetXY($x + ($k * $rect_width) + 1,$y + ($rect_height / 2) - 5);
+                $this->MultiCell($rect_width - 2, $cellh, $content[$k], 0, $align, false);
+            } else if (!empty($content[$k]) and file_exists($content[$k]) and !is_dir($content[$k])) {
+                $this->Image($content[$k], $x + ($k * $rect_width) + (($rect_width - $imgw) / 2), $y + (($rect_height - $imgh) / 2), $imgw, $imgh);
+            }
+        }
+        
+        /**** TEXT ****/
+        
+        $y += 4 + $rect_height;
+        
+        $this->SetXY($x,$y);
+	$this->SetFont($stds['font-family'],'',$stds['font-size']);
+        
+        $sentence = $this->fra->text_after_review_table;
+        
+        $this->MultiCell(146, 5, $sentence, 0, 'J', false);
+                
+        /**************/
+        
+        $rev = $this->revision;
+        if ($rev < 10) {
+            $rev = '0' . $rev;
+        }
+        
+        // Print Footer Manually
+        $x = 99;
+        $y = 264;
+        
+        $line_width = $this->USEFUL_WIDTH;
+        
+        $this->SetFont($stds['font-family'],'',$stds['font-mini-small']);
+        $this->setTextColor(0,0,0);
+        
+        $this->SetXY($x, $y);        
+        $this->Cell(50,10,'Derisk UK Ltd',0,1,'L');
+        
+        $x = 32;
+        $y += 7;
+        
+        $this->Line($x,$y,$x + $line_width,$y);
+        
+        $this->SetXY($x, $y);
+        $this->Cell(70,4,'Fire Risk Assessment',0,1,'L');
+        
+        $x = 103;
+        
+        $this->SetXY($x, $y);
+        $this->Cell(50,4,'REV' . $rev,0,1,'L');
+        
+        $x = 162;
+        
+        $this->SetXY($x, $y);
+        $this->Cell(50,4,'Page 2 of {nb}',0,1,'L');
+        
+        $this->printFooter = false;
+    }
+}
+
 class FrasController extends Controller
 {
     public function index()
@@ -3272,9 +4384,14 @@ class FrasController extends Controller
         // Get th elements needed to construct the object
         $shop_id = $request->input('shop_id');
         $revision = $request->input('revision');
+        $client_id = $request->input('client_id');
         
         // Create an instance to print the report
         $pdf = new FraPDF($shop_id,$revision);
+        
+        if (!empty($client_id) and ($client_id == 63)) {
+            $pdf = new PheFraPDF($shop_id,$revision);
+        }
         
         $elems = $pdf->getElements();
         
@@ -3308,6 +4425,10 @@ class FrasController extends Controller
              
         // Save the report in file
         $shop_name = str_replace(" ","-",$elems['shop']->name);
+	$shop_name = str_replace(",","-",$shop_name);
+	$shop_name = str_replace(",-","-",$shop_name);
+	$shop_name = str_replace("--","-",$shop_name);
+	$shop_name = str_replace("'","",$shop_name);
         $relative_path = '/' . strtolower($shop_name) . '/fra-issue-' . $elems['revision'] . '.pdf';
         $path_pdf = public_path() . '/fra' . $relative_path;
         
@@ -3317,3 +4438,4 @@ class FrasController extends Controller
         return $relative_path;
     }
 }
+
