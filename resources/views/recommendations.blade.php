@@ -7,6 +7,20 @@
 @section('header-title', $title)
 
 @section('main-content')
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        jQuery('#idclient').on('change',function() {
+            var idclient = jQuery(this).val();
+            
+            if (idclient.length == 0) {
+                return false;
+            }
+        
+            location.href = '/recommendations-and-comments/' + idclient;
+        });
+    });
+</script>
+
 <div id="filter-row" class="row gutter">    
     <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
         <div id="client-filter-div" class="form-group">
