@@ -455,7 +455,6 @@ function printFraPdf()
         url: '/printFraPdf',
         data: {
              'shop_id': selshop,
--            'revision': revision
              'revision': revision,
              'client_id': client_id
         },
