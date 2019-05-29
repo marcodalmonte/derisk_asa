@@ -313,6 +313,10 @@ class FraPDF extends \fpdi\FPDI
         
         $k = 0;
         foreach ($questions as $quest_id => $quest) {
+            if (empty($answers[$quest_id])) {
+                continue;
+            }
+            
             $answer = $answers[$quest_id];
             
             $record = array(

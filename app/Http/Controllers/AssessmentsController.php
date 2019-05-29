@@ -1233,7 +1233,7 @@ class AssessmentsController extends Controller
         
         $mdate = date('Y-m-d H:i:s',time());
         
-        if (empty($raquestion_id) or empty($client_id)) {
+        if (empty($recomm_id) and (empty($raquestion_id) or empty($client_id))) {
             return response()->json(['saved' => 0]);
         }
         
@@ -1275,7 +1275,7 @@ class AssessmentsController extends Controller
         
         $mdate = date('Y-m-d H:i:s',time());
         
-        if (empty($raquestion_id) or empty($client_id)) {
+        if (empty($comment_id) and (empty($raquestion_id) or empty($client_id))) {
             return response()->json(['saved' => 0]);
         }
         

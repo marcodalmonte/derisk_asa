@@ -63,8 +63,8 @@
                                     <thead>
                                         <tr>
                                             <td>Question</td>
-                                            <td>Recommendations</td>
                                             <td>Comments</td>
+                                            <td>Recommendations</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -72,6 +72,35 @@
                                         <tr id="tr_{{ $question->id }}" name="tr_{{ $section->id }}_{{ 1 + $n }}" class="answers">
                                             <td>
                                                 {{ $section->id }}.{{ 1 + $n }} {{ $question->question }}
+                                            </td>
+                                            <td>
+                                                <table cellpadding="0" cellspacing="0">
+                                                    <tr>
+                                                        <td>
+                                                            <textarea id="comment_new_{{ $question->id }}" name="comment_new_{{ $question->id }}" class="form-control"></textarea>
+                                                        </td>
+                                                        <td class="icon-td">
+                                                            <a href="javascript:;" title="Save" class="save_comment" rel="comment_new_{{ $question->id }}">
+                                                                <img src="/img/update.png" class="img_actions" alt="Save" title="Save" />
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    @foreach ($comments[$question->id] as $comment)
+                                                    <tr>
+                                                        <td>
+                                                            <textarea id="comment_{{ $comment->id }}" name="comment_{{ $comment->id }}" class="form-control">{{ $comment->text }}</textarea>
+                                                        </td>
+                                                        <td class="icon-td">
+                                                            <a href="javascript:;" title="Update" class="update_comment" rel="comment_{{ $comment->id }}">
+                                                                <img src="/img/update.png" class="img_actions" alt="Update" title="Update" />
+                                                            </a>
+                                                            <a href="javascript:;" title="Delete" class="delete_comment" rel="comment_{{ $comment->id }}">
+                                                                <img src="/img/delete.png" class="img_actions" alt="Delete" title="Delete" />
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    @endforeach
+                                                </table>
                                             </td>
                                             <td>
                                                 <table cellpadding="0" cellspacing="0">
@@ -95,35 +124,6 @@
                                                                 <img src="/img/update.png" class="img_actions" alt="Update" title="Update" />
                                                             </a>
                                                             <a href="javascript:;" title="Delete" class="delete_recomm" rel="recomm_{{ $recomm->id }}">
-                                                                <img src="/img/delete.png" class="img_actions" alt="Delete" title="Delete" />
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-                                                    @endforeach
-                                                </table>
-                                            </td>
-                                            <td>
-                                                <table cellpadding="0" cellspacing="0">
-                                                    <tr>
-                                                        <td>
-                                                            <textarea id="comment_new_{{ $question->id }}" name="comment_new_{{ $question->id }}" class="form-control"></textarea>
-                                                        </td>
-                                                        <td class="icon-td">
-                                                            <a href="javascript:;" title="Save" class="save_comment" rel="comment_new_{{ $question->id }}">
-                                                                <img src="/img/update.png" class="img_actions" alt="Save" title="Save" />
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-                                                    @foreach ($comments[$question->id] as $comment)
-                                                    <tr>
-                                                        <td>
-                                                            <textarea id="comment{{ $comment->id }}" name="comment_{{ $comment->id }}" class="form-control">{{ $comment->text }}</textarea>
-                                                        </td>
-                                                        <td class="icon-td">
-                                                            <a href="javascript:;" title="Update" class="update_comment" rel="comment_{{ $comment->id }}">
-                                                                <img src="/img/update.png" class="img_actions" alt="Update" title="Update" />
-                                                            </a>
-                                                            <a href="javascript:;" title="Delete" class="delete_comment" rel="comment_{{ $comment->id }}">
                                                                 <img src="/img/delete.png" class="img_actions" alt="Delete" title="Delete" />
                                                             </a>
                                                         </td>
