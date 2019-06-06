@@ -77,6 +77,8 @@ Route::post('removeReport','ReportsController@removeReport');
 
 Route::post('printReport','PdfController@printReport');
 
+Route::post('upload','TabletController@uploadDataFromTablet');
+
 Route::get('/specs','RemovalsController@index');
 
 Route::get('/spec/{spec}','RemovalsController@getRemoval');
